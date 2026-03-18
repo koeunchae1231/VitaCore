@@ -144,7 +144,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| id | INT PK | 타입 ID |
+| id | BIGINT PK | 타입 ID |
 | name | VARCHAR(50) | 바이탈 종류 (HR, SpO2 등) |
 
 ### 3.6 measurements
