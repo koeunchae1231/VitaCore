@@ -177,7 +177,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | character_id | BIGINT FK | 캐릭터 |
 | type | VARCHAR(50) | 파형 종류 (ECG 등) |
 | data | TEXT | 파형 JSON |
-| measured_at | DATETIME | 시간 |
+| measured_at | DATETIME | 측정 시간 |
 
 > measurements에서 파생된 표현 데이터로,
 >
@@ -191,7 +191,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | user_id | BIGINT FK | 사용자 |
 | type | VARCHAR(100) | 이벤트 종류 |
 | description | TEXT | 상세 내용 |
-| created_at | DATETIME | 시간 |
+| created_at | DATETIME | 생성 시간 |
 
 ---
 
