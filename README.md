@@ -154,6 +154,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | id | BIGINT PK | 측정 ID |
 | character_id | BIGINT FK | 캐릭터 |
 | vital_type_id | BIGINT FK | 바이탈 타입 |
+| app_device_id | BIGINT FK | 기기 구분 |
 | original_measurement_id | BIGINT FK | 원본 = NULL / 수정본 = 원본의 id |
 | value | FLOAT | 측정 값 |
 | measured_at | DATETIME | 측정 시간 |
