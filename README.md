@@ -174,7 +174,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | id | BIGINT PK | 파형 ID |
-| character_id | BIGINT FK | 캐릭터 |
+| measurement_id | BIGINT FK | 측정 ID |
 | type | VARCHAR(50) | 파형 종류 (ECG 등) |
 | data | TEXT | 파형 JSON |
 | measured_at | DATETIME | 측정 시간 |
