@@ -157,7 +157,6 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | original_measurement_id | BIGINT FK | 원본 = NULL / 수정본 = 원본의 id |
 | value | FLOAT | 측정 값 |
 | measured_at | DATETIME | 측정 시간 |
-| original_measurement_id | BIGINT FK | 원본 = NULL / 수정본 = 원본의 id |
 | source_type | ENUM('device','simulation','manual') | 데이터 출처 구분 |
 
 > source_type: 실측(device), 시뮬레이션(simulation), 수동 수정(manual)을 구분하기 위해 사용한다.
