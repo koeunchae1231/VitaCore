@@ -125,7 +125,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | device_identifier | VARCHAR(255) UNIQUE | 기기 고유값 |
 | created_at | DATETIME | 생성 시간 |
 | updated_at | DATETIME | 수정 시간 |
-| last_login_at | DATETIME | 마지막 접속 |
+| last_active_at | DATETIME | 마지막 접속 |
 | is_active | BOOLEAN | 활성 여부 |
 
 ### 3.4 connection_codes
