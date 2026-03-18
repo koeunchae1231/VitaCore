@@ -133,8 +133,8 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | id | BIGINT PK | 코드 ID |
-| code | VARCHAR(20) UNIQUE | 연결 코드 |
 | user_id | BIGINT FK | 사용자 |
+| code | VARCHAR(20) UNIQUE | 연결 코드 |
 | created_at | DATETIME | 생성 시간 |
 | expires_at | DATETIME | 만료 시간 |
 | used_at | DATETIME | 사용 시간 |
