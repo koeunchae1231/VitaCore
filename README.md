@@ -66,10 +66,6 @@ VitaCore는 의료 진단 또는 치료를 위한 시스템이 아니며,
 
 VitaCore는 보안성과 확장성을 고려하여 3계층 구조로 설계되었다.
 
-- Frontend (React)
-- Backend (Node.js + Express)
-- Database (MariaDB)
-
 ### 1.1 Data Flow Diagram (데이터 흐름도)
 
 ![DFD](./docs/DFD.png)
