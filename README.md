@@ -6,7 +6,7 @@ Security-focused web platform for physiology-based vital simulation and visualiz
 
 ## Overview
 
-VitaCore는 웨어러블 바이탈 데이터를 기반으로 생리학적 시뮬레이션을 수행하고,
+VitaCore는 웨어러블 기반 실측 바이탈 데이터를 수집하여 생리학적 시뮬레이션을 수행하고,
 
 이를 시각화하는 보안 중심(Web-based) 플랫폼이다.
 
