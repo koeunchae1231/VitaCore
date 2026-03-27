@@ -167,7 +167,8 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | id | BIGINT PK | 기기 ID |
-| user_id | BIGINT FK | 사용자 ID |
+| character_id | BIGINT FK | 캐릭터 ID |
+| device_name | VARCHAR(100) | 기기 이름 |
 | device_identifier | VARCHAR(255) UNIQUE | 기기 고유값 |
 | created_at | DATETIME | 생성 시간 |
 | updated_at | DATETIME | 수정 시간 |
