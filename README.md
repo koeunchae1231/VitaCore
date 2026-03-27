@@ -156,6 +156,10 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | id | BIGINT PK | 캐릭터 ID |
 | user_id | BIGINT FK | 사용자 |
 | name | VARCHAR(100) | 캐릭터 이름 |
+| age | INT | 캐릭터 나이 |
+| gender | VARCHAR(20) | 캐릭터 성별 |
+| height | DECIMAL(5,2) | 캐릭터 키 |
+| weight | DECIMAL(5,2) | 캐릭터 몸무게 |
 | created_at | DATETIME | 생성 시간 |
 
 ### 3.3 app_devices
