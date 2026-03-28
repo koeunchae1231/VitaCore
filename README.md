@@ -142,7 +142,9 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | id | BIGINT PK | 사용자 ID |
+| name | VARCHAR(100) | 사용자 이름 |
 | email | VARCHAR(255) UNIQUE | 이메일 |
+| email_verified | BOOLEAN | 이메일 인증 |
 | password_hash | VARCHAR(255) | bcrypt 해시 |
 | created_at | DATETIME | 생성 시간 |
 | updated_at | DATETIME | 수정 시간 |
@@ -231,12 +233,23 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 >
 > measurements의 값을 파형으로 시각화하기에 임의 변경이 불가능하다.
 
-### 3.8 security_events
+### 3.8 email_verification_tokens
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| id | BIGINT PK | 토큰 ID |
+| user_id | BIGINT FK | 사용자 ID |
+| token_hash | VARCHAR(255) | 인증 토큰 해시 |
+| expires_at | DATETIME | 만료 시간 |
+| used_at | DATETIME | 사용 시간 (NULL = 미사용) |
+| created_at | DATETIME | 생성 시간 |
+
+### 3.9 security_events
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | id | BIGINT PK | 이벤트 ID |
-| user_id | BIGINT FK | 사용자 |
+| user_id | BIGINT FK | 사용자 ID |
 | type | VARCHAR(100) | 이벤트 종류 |
 | description | TEXT | 상세 내용 |
 | created_at | DATETIME | 생성 시간 |
