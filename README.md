@@ -208,6 +208,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | value | FLOAT | 측정 값 |
 | measured_at | DATETIME | 측정 시간 |
 | source_type | ENUM('device','simulation','manual') | 데이터 출처 구분 |
+| created_at | DATETIME | 생성 시간 |
 
 > source_type: 실측(device), 시뮬레이션(simulation), 수동 수정(manual)을 구분하기 위해 사용한다.
 
@@ -226,7 +227,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | id | BIGINT PK | 파형 ID |
 | measurement_id | BIGINT FK | 측정 ID |
 | type | VARCHAR(50) | 파형 종류 (ECG 등) |
-| data | TEXT | 파형 JSON |
+| data | JSON | 파형 JSON |
 | measured_at | DATETIME | 측정 시간 |
 
 > measurements에서 파생된 표현 데이터로,
@@ -249,7 +250,7 @@ VitaCore의 데이터 구조는 다음 원칙을 따른다.
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | id | BIGINT PK | 이벤트 ID |
-| user_id | BIGINT FK | 사용자 ID |
+| user_id | BIGINT | 사용자 ID |
 | type | VARCHAR(100) | 이벤트 종류 |
 | description | TEXT | 상세 내용 |
 | created_at | DATETIME | 생성 시간 |
