@@ -157,7 +157,16 @@ Database 저장
 
 ---
 
-## 10. Notes
+## 10. Error Handling
+
+- 연결 코드 실패 → 입력 화면 유지 + 에러 메시지 표시
+- 네트워크 실패 → 재시도 안내
+- HealthKit 권한 없음 → 설정 이동 유도
+- 서버 응답 없음 → 타임아웃 처리
+
+---
+
+## 11. Notes
 
 - iOS 앱은 실제 배포가 아닌 중계용으로 사용
 - Apple Watch → iPhone → Server 구조를 기반으로 동작
