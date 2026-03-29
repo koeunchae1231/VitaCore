@@ -344,4 +344,9 @@ VitaCore는 의료 진단/치료 목적이 아닌,
 
 ---
 
+## 10. iOS Relay App
 
+VitaCore는 Apple Watch 및 iPhone Health 데이터를   
+웹 플랫폼으로 안전하게 전달하기 위해 Swift 기반의 iOS 중계 앱을 포함한다.
+
+자세한 개발 과정 및 실행 방법은 [iOS README](./ios/README.md)에서 확인할 수 있다.
