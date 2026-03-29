@@ -223,7 +223,7 @@ VitaCore는 의료 진단/치료 목적이 아닌,
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | id | BIGINT PK | 이벤트 ID |
-| user_id | BIGINT | 사용자 ID |
+| email | VARCHAR(255) UNIQUE | 이메일 |
 | type | VARCHAR(100) | 이벤트 종류 |
 | description | TEXT | 상세 내용 |
 | created_at | DATETIME | 생성 시간 |
