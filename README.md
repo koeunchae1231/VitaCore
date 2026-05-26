@@ -25,6 +25,16 @@ Not just a data viewer, but a physiology-based simulation system.
 
 ## Motivation
 
+As a student developer, I wanted to build a project that I could sustain deeply throughout a semester.   
+I believed that a large-scale project would only be completed meaningfully if it was based on a subject I genuinely cared about.   
+한 학기 동안 한 명의 학생이 대규모 프로젝트를 흐름 끊기지 않고 완성하기 위해서는 스스로 오래 몰입할 수 있는 주제를 선택해야 한다고 생각했습니다.
+
+VitaCore started from my interest in combining physiology and IT.  
+Rather than building a diagnostic medical service,
+I designed it as an educational simulation platform that visualizes physiological signals and character states through both real and simulated vital data.  
+VitaCore는 제가 관심을 가지고 있던 생리학과 IT의 융합에서 출발했습니다.  
+의료 진단 서비스가 아니라, 실제 생체 데이터와 시뮬레이션 데이터를 함께 활용해 생체 신호와 캐릭터 상태를 시각화하는 교육용 시뮬레이션 플랫폼으로 설계했습니다.
+
 VitaCore extends beyond traditional healthcare systems by:
 
 - Integrating real-world and simulated physiological data  
