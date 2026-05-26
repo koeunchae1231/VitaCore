@@ -368,4 +368,4 @@ VitaCore는 Apple Watch 및 iPhone Health 데이터를
 
 ## 11. Current Status
 
-자세한 개발 과정 및 진행 방법은 [Mid_Report](./docs/VitaCore_Dev_Mid_Report)에서 확인할 수 있다.
+자세한 개발 과정 및 진행 방법은 [Mid_Report](./docs/VitaCore_Dev_Mid_Report.pdf)에서 확인할 수 있다.
