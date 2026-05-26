@@ -38,15 +38,6 @@ that visualizes physiological signals and character states through both real and
 > 실제 생체 데이터와 시뮬레이션 데이터를 함께 활용해 생체 신호와 캐릭터 상태를 시각화하는     
 > 교육용 시뮬레이션 플랫폼으로 설계했습니다.    
 
-VitaCore extends beyond traditional healthcare systems by:
-
-- Integrating real-world and simulated physiological data  
-> 실측 + 시뮬레이션 데이터 통합
-- Providing educational insight into human body responses  
-> 인체 반응 이해를 위한 교육적 가치
-- Applying security concepts such as Zero Trust and data integrity  
-> Zero Trust 및 데이터 무결성 적용
-
 ---
 
 ## Overview
@@ -314,7 +305,7 @@ VitaCore는 의료 진단/치료 목적이 아닌,
 > 감사(Audit) 및 이상 탐지 기반을 제공한다
 - Lightweight algorithm-based anomaly detection
 > 경량 알고리즘 기반 이상 탐지 구조를 고려한다
-- Security policy design is implemented based on CSAP guidelines
+- Security policy design references CSAP concepts
 > CSAP 기준을 참고한 보안 정책 설계를 반영한다
 
 ---
@@ -357,7 +348,7 @@ VitaCore는 의료 진단/치료 목적이 아닌,
 
 ---
 
-## 10. iOS Relay App
+## 11. iOS Relay App
 
 VitaCore는 Apple Watch 및 iPhone Health 데이터를   
 웹 플랫폼으로 안전하게 전달하기 위해 Swift 기반의 iOS 중계 앱을 포함한다.
@@ -366,6 +357,6 @@ VitaCore는 Apple Watch 및 iPhone Health 데이터를
 
 ---
 
-## 11. Current Status
+## 12. Current Status
 
 자세한 개발 과정 및 진행 방법은 [Mid_Report](./docs/VitaCore_Dev_Mid_Report.pdf)에서 확인할 수 있다.
