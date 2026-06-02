@@ -1,0 +1,75 @@
+:root {
+  /* ========================= Colors */
+  --color-bg: #153243;
+  --color-bg-deep: #102733;
+
+  --color-panel: #16384a;
+  --color-panel-soft: #1b4254;
+  --color-panel-deep: #112d3a;
+
+  --color-primary: #ebdec3;
+  --color-primary-strong: #f3e7cf;
+
+  --color-text: #f7f7f4;
+  --color-text-muted: #b8c6cb;
+  --color-text-soft: #8fa5ad;
+
+  --color-border: rgba(235, 222, 195, 0.45);
+  --color-border-strong: rgba(235, 222, 195, 0.75);
+
+  --color-fill: #42667a;
+  --color-fill-dark: #355566;
+  --color-fill-focus: #4b7288;
+
+  --color-white-panel: #f4f4f1;
+  --color-black-panel: #0b0d10;
+
+  --color-danger: #c84d4d;
+  --color-danger-soft: rgba(200, 77, 77, 0.12);
+
+  --color-success: #8fd29b;
+  --color-warning: #f2c66d;
+
+  /* ========================= Radius */
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+  --button-border-width: 3px;
+
+  /* ========================= Shadow */
+  --shadow-panel: 0 24px 60px rgba(0, 0, 0, 0.42);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.22);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  /* ========================= Typography */
+  --font-family-base: "Pretendard", "Noto Sans KR", sans-serif;
+
+  --font-size-brand: 2rem;
+  --font-size-page-title: 1.7rem;
+  --font-size-section-title: 1.15rem;
+  --font-size-body: 0.95rem;
+  --font-size-label: 0.82rem;
+  --font-size-caption: 0.75rem;
+
+  --line-height-base: 1.5;
+
+  /* ========================= Spacing */
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 18px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+
+  /* ========================= Sizing */
+  --app-frame-width: 1080px;
+  --app-frame-height: 680px;
+  --app-frame-min-height: var(--app-frame-height);
+  --content-max-width: 100%;
+  --control-height: 48px;
+  --button-height: 50px;
+}

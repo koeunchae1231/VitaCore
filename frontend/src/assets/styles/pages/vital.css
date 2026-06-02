@@ -1,0 +1,326 @@
+/* frontend/src/assets/styles/pages/vital.css */
+
+
+/* =========================
+   Vital Monitor Layout
+   - PDF 12 메인 구조
+   - 왼쪽 그래프 / 오른쪽 바이탈 패널
+========================= */
+
+.vital-monitor {
+  display: grid;
+
+  /* 
+    왼쪽 그래프가 최대한 넓게 먹고
+    오른쪽 숫자 패널은 고정 폭 느낌
+  */
+  grid-template-columns: minmax(0, 1fr) 235px;
+
+  border-radius: var(--radius-lg);
+
+  overflow: hidden;
+  border: 1px solid rgba(235, 222, 195, 0.1);
+}
+
+
+/* =========================
+   Left Graph Panel
+========================= */
+
+/* 
+  검은 모니터 화면
+  - 실제 ECG/파형 영역
+*/
+.vital-graph-panel {
+  min-height: 420px;
+
+  background: #050608;
+
+  padding: 8px 6px;
+  position: relative;
+}
+
+.vital-graph-panel::before {
+  content: "";
+  position: absolute;
+  inset: 14px 10px;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(235, 222, 195, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(235, 222, 195, 0.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* 
+  SVG 전체 영역
+  - width/height 100%로 꽉 채움
+*/
+/* 
+  공통 파형 선 스타일
+  - stroke-width를 키우면 선 굵어짐
+*/
+/* 
+  각 바이탈별 색상
+  - PDF 기준 색상 느낌 맞춤
+*/
+/* =========================
+   Right Vital Panel
+========================= */
+
+/* 
+  오른쪽 숫자 패널
+  - HR / SpO2 / RR / TEMP / BP
+*/
+.vital-side-panel {
+  min-height: 420px;
+
+  padding: 14px 13px;
+
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr)) minmax(118px, 1.18fr);
+  align-content: stretch;
+  gap: 10px;
+
+  background: linear-gradient(
+    180deg,
+    var(--color-fill) 0%,
+    var(--color-fill-dark) 100%
+  );
+}
+
+/* 
+  맨 위 HR + TEMP 한 줄
+*/
+.vital-side-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+
+  gap: 10px;
+}
+
+/* 
+  개별 바이탈 블럭
+*/
+.vital-side-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-height: 0;
+  padding-top: 0;
+  border-top: 1px solid rgba(235, 222, 195, 0.1);
+}
+
+/* 
+  큰 숫자
+  - HR / SpO2 / RR
+*/
+.vital-number-large {
+  font-size: 2.72rem;
+}
+
+/* 
+  중간 숫자
+  - TEMP
+*/
+.vital-number-medium {
+  font-size: 2.05rem;
+}
+
+/* 
+  BP 전체 블럭
+  - 아래쪽 공간 밀기 위해 margin-top:auto 사용
+*/
+.vital-bp-block {
+  min-height: 118px;
+  justify-content: center;
+}
+
+/* 
+  DBP/SBP 큰 텍스트
+*/
+.vital-bp-text {
+  font-size: clamp(1.88rem, 2.8vw, 2.32rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 
+  (MAP) 텍스트
+*/
+.vital-map-text {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.vital-edit-button,
+.vital-edit-input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+}
+
+.vital-edit-button {
+  cursor: pointer;
+}
+
+.vital-edit-button:disabled {
+  cursor: default;
+}
+
+.vital-edit-input {
+  min-width: 0;
+  border-bottom: 1px solid currentColor;
+  outline: none;
+}
+
+.vital-history-panel {
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+}
+
+.vital-history-row {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.vital-monitor-screen {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 8px 4px;
+  background: #050909;
+  display: grid;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.vital-wave-row {
+  position: relative;
+  display: block;
+  min-height: 0;
+}
+
+.vital-wave-label {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  z-index: 2;
+  display: grid;
+  gap: 5px;
+  padding-top: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.vital-wave-label strong {
+  color: rgba(235, 222, 195, 0.72);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.vital-wave-stream {
+  width: 100%;
+  height: 100%;
+  min-height: 74px;
+  display: block;
+}
+
+.vital-wave-stream polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: none;
+}
+
+.vital-wave-midline {
+  stroke: rgba(235, 222, 195, 0.14);
+  stroke-width: 0.8;
+}
+
+.vital-wave-ecg {
+  color: #00d46f;
+}
+
+.vital-wave-spo2 {
+  color: #35aee8;
+}
+
+.vital-wave-resp {
+  color: #e0c400;
+}
+
+.vital-wave-art {
+  color: #f27a1a;
+}
+
+@keyframes vital-wave-stream {
+  from {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -56;
+  }
+}
+
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+  .vital-monitor {
+    grid-template-columns: 1fr;
+  }
+
+  .vital-side-panel {
+    min-height: auto;
+    grid-template-rows: auto;
+  }
+
+  .vital-bp-block {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .vital-graph-panel {
+    min-height: 280px;
+    padding: 12px;
+  }
+
+  .vital-monitor-screen {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .vital-wave-row {
+    display: block;
+  }
+
+  .vital-side-panel {
+    padding: 14px;
+  }
+
+  .vital-number-large {
+    font-size: 2.2rem;
+  }
+
+  .vital-number-medium {
+    font-size: 2rem;
+  }
+
+  .vital-bp-text {
+    font-size: 1.8rem;
+  }
+
+}

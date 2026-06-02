@@ -1,0 +1,191 @@
+/* frontend/src/assets/styles/pages/connection.css */
+
+/* =========================
+   Connection Page
+   - PDF 13~14 CONNECTION 화면
+========================= */
+
+.connection-page {
+  width: 100%;
+}
+
+
+/* =========================
+   Common Connection Panel
+   - ConnectionCodeDisplay.jsx
+   - ConnectionStatusCard.jsx
+========================= */
+
+/*
+  연결 화면 중앙 패널
+  - 코드 표시 화면과 연결 성공 화면 둘 다 사용
+  - min-height를 키우면 중앙 영역이 더 커짐
+*/
+.connection-panel {
+  min-height: 420px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 28px 24px;
+  border-radius: var(--radius-lg);
+  background: #050608;
+  border: 1px solid rgba(235, 222, 195, 0.1);
+}
+
+.monitor-body > .connection-panel {
+  margin-top: -8px;
+}
+
+/*
+  안내 문구
+  - The current character's connection code is
+*/
+.connection-description {
+  margin: 0;
+
+  color: var(--color-text);
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+}
+
+
+/* =========================
+   Connection Code Display
+========================= */
+
+/*
+  code-box / code-digit은 components.css에 있음
+  - 여러 화면에서 재사용 가능해서 components.css에 둔 상태
+*/
+.code-box {
+  margin: 28px 0;
+}
+
+/*
+  남은 시간 문구
+*/
+.connection-timer {
+  margin: 0;
+
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.connection-detail-grid {
+  width: min(560px, 100%);
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  text-align: left;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.connection-detail-grid p {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(235, 222, 195, 0.08);
+  padding-bottom: 6px;
+}
+
+.connection-detail-grid strong {
+  color: var(--color-text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================
+   Connection Status Card
+========================= */
+
+/*
+  연결 상태 화면 전용 패널
+*/
+.connection-status-panel {
+  gap: 14px;
+}
+
+.connection-note {
+  max-width: 460px;
+  margin: 12px 0 0;
+  color: var(--color-text-soft);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/*
+  YOU ARE CONNECTED!
+*/
+.connection-status-title {
+  margin: 0;
+
+  color: var(--color-primary);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/*
+  Connected successfully / Waiting for device connection
+*/
+.connection-status-message {
+  margin: 0;
+
+  color: var(--color-text);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+/*
+  Device / Last sync 정보
+*/
+.connection-device-info {
+  margin-top: 18px;
+  min-width: min(360px, 100%);
+  padding: 12px 0;
+
+  display: grid;
+  gap: 6px;
+
+  border-top: 1px solid rgba(235, 222, 195, 0.12);
+  border-bottom: 1px solid rgba(235, 222, 195, 0.08);
+
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+}
+
+.connection-device-info p {
+  margin: 0;
+}
+
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 640px) {
+  .connection-panel {
+    min-height: 320px;
+    padding: 18px;
+  }
+
+  .connection-status-title {
+    font-size: 1.25rem;
+  }
+
+  .connection-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,12 @@
+/*frontend/src/assets/styles/main.css*/
+@import "./reset.css";
+@import "./theme.css";
+@import "./global.css";
+@import "./layout.css";
+@import "./components.css";
+
+@import "./pages/auth.css";
+@import "./pages/character.css";
+@import "./pages/connection.css";
+@import "./pages/help.css";
+@import "./pages/vital.css";

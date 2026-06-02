@@ -1,0 +1,128 @@
+/* frontend/src/assets/styles/pages/help.css */
+
+/* =========================
+   Help Page
+   - PDF 16 HELP 화면
+========================= */
+
+.help-page {
+  width: 100%;
+}
+
+
+/* =========================
+   Help Panel
+   - CommandHelpPanel.jsx와 연결
+========================= */
+
+/*
+  HELP 전체 흰색 패널
+  - surface-light 클래스와 같이 사용됨
+  - padding을 바꾸면 패널 안쪽 여백이 바뀜
+*/
+.help-panel {
+  min-height: 420px;
+  padding: 20px;
+
+  border-radius: var(--radius-lg);
+
+  overflow-y: auto;
+}
+
+/*
+  명령어 그룹 전체 목록
+  - gap을 바꾸면 CIRCULATORY / RESPIRATORY 같은 카테고리 사이 간격이 바뀜
+*/
+.help-command-list {
+  display: grid;
+  gap: 16px;
+}
+
+/*
+  명령어 카테고리 한 묶음
+*/
+.help-command-group {
+  margin: 0;
+}
+
+/*
+  카테고리 제목
+  - 예: CIRCULATORY (순환계)
+*/
+.help-command-title {
+  margin: 0 0 6px;
+
+  color: #15191d;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/*
+  카테고리 제목 안의 한글 부분
+*/
+.help-command-title span {
+  font-weight: 700;
+}
+
+/*
+  명령어 목록
+  - ul 기본 점 제거
+*/
+.help-command-items {
+  display: grid;
+  gap: 4px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+/*
+  명령어 한 줄
+  - 예: APPLY_FLUID: 수액 투여
+*/
+.help-command-items li {
+  display: flex;
+  gap: 6px;
+
+  color: #374151;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/*
+  명령어 코드 부분
+  - 예: APPLY_FLUID
+*/
+.help-command-items strong {
+  color: #15191d;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/*
+  명령어 설명 부분
+  - 예: 수액 투여
+*/
+.help-command-items span {
+  color: #374151;
+}
+
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 640px) {
+  .help-panel {
+    min-height: auto;
+    padding: 18px;
+  }
+
+  .help-command-items li {
+    flex-direction: column;
+    gap: 0;
+  }
+}
