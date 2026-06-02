@@ -14,14 +14,18 @@ export default function IntroPage() {
 
           <section className="auth-description-card intro-description-layout">
             <div className="intro-description-copy">
-              <h1 className="auth-description-title">What is VitaCore?</h1>
+              <h1 className="auth-description-title">VITACORE는 무엇인가요?</h1>
               <p className="auth-description-text">
-                VitaCore는 바이탈 데이터와 캐릭터 상태를 연결해 생리적 변화를
-                시각적으로 보여주는 교육용 시뮬레이터입니다.
+                증상이 없어도<br />
+                신체 상태는 계속 변화합니다.
                 <br />
                 <br />
-                심박, 혈압, 호흡, 체온, 산소포화도의 변화를 명령어로 적용하고
-                캐릭터 이미지와 이벤트 로그로 상태를 확인할 수 있습니다.
+                바이탈 데이터를 기반으로<br />
+                신체 상태를 편리하게 시각화하고,
+                <br />
+                <br />
+                측정값을 넘어 생리학적인 변화를<br />
+                캐릭터로 시뮬레이션합니다.
               </p>
             </div>
             <img
