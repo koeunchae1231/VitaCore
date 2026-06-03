@@ -1,173 +1,195 @@
-# iOS Relay App (중계 앱 설계)
+# VitaCore iOS Relay App
+
 ## 1. Overview
 
-VitaCore는 Apple Watch에서 수집된 생리 데이터를  
-웹 플랫폼으로 전달하기 위해 iOS 중계 애플리케이션을 사용한다.
+VitaCore iOS 앱은 Apple Health 기반 생체 데이터를    
+VitaCore 웹 플랫폼으로 전달하기 위한 Relay Application 구조로 설계.
 
-- HealthKit 데이터 접근
-- 연결 코드 기반 인증
-- 안전한 데이터 전송
+HealthKit 기반 데이터 접근,     
+연결 코드 기반 기기 인증,     
+Backend API 기반 데이터 전송 기능을 중심으로 구성.
 
 ---
 
 ## 2. Tech Stack
 
-- Language: Swift
-- IDE: Xcode
-- Framework:
+- Language
+  - Swift
+
+- IDE
+  - Xcode
+
+- Framework
+  - SwiftUI
   - HealthKit
-  - URLSession (HTTP 통신)
+  - URLSession
 
----
+ ---
 
-## 3. App Architecture (앱 구조)
+ ## 3. App Architecture
 
-iOS 앱은 단순 흐름 기반 구조로 설계된다.
+iOS 앱은 연결 코드 기반 기기 인증과    
+HealthKit 데이터 전송 흐름 중심으로 구성.
 
 ```
-
 [ Splash Screen ]
         ↓
 [ Connection Code Input ]
         ↓
-[ Connection Attempt (Loading) ]
+[ Connection Loading ]
        ↓                ↓
-    Success          Failure 
+    Success          Failure
        ↓                ↓
-[ Data Screen ]  [ Retry Input ]
-
+[ Data Transfer ]  [ Retry Input ]
 ```
 
 ---
 
-## 4. Screen Flow (화면 흐름)
+## 4. Screen Flow
 
-### 4.1 Splash Screen
+### Splash Screen
 
-- 앱 최초 실행 화면
-- 짧은 로딩 후 코드 입력 화면으로 이동
+앱 최초 실행 화면.  
 
----
-
-### 4.2 Connection Code Input Screen
-
-- 사용자가 연결 코드를 입력
-- "연결" 버튼 클릭 시 서버 검증 요청
-
-#### 동작
-- 성공 → 데이터 전송 화면 이동
-- 실패 → 에러 메시지 표시 후 입력 화면 유지
+짧은 로딩 후 연결 코드 입력 화면으로 이동.
 
 ---
 
-### 4.3 Connection Loading Screen
+### Connection Code Input Screen
 
-- 서버 연결 검증 중 표시되는 로딩 화면
-- 사용자 입력 차단
+사용자가 연결 코드를 입력하고 서버 검증 요청을 수행.
+
+- 성공
+  - 데이터 전송 화면 이동
+
+- 실패
+  - 에러 메시지 표시 후 입력 화면 유지
 
 ---
 
-### 4.4 Data Transmission Screen
+### Connection Loading Screen
 
-- "내 건강 정보 보내기" 버튼 제공
+서버 연결 검증 중 표시되는 로딩 화면.   
 
-#### 동작
+연결 완료 전까지 사용자 입력을 제한.
+
+---
+
+### Data Transfer Screen
+
+HealthKit 기반 생체 데이터를 서버로 전송하는 화면.
+
 - 전송 성공
-  - "정보가 전달되었습니다"
   - 마지막 전송 시간 표시
+  - 데이터 전달 완료 메시지 출력
 
 - 전송 실패
-  - "정보가 전달되지 않았습니다" 표시
+  - 오류 메시지 출력
+  - 재시도 가능
+ 
+---
+
+## 5. HealthKit Integration
+
+앱은 Apple Health 데이터를 읽기 위해    
+HealthKit 권한을 요청.
+
+### Access Data
+
+- Heart Rate
+- SpO2
 
 ---
 
-## 5. Health Data Access (HealthKit)
+### Permission Flow
 
-앱은 Apple Health 데이터를 읽기 위해 HealthKit 권한을 요청한다.
+앱 최초 실행 시 HealthKit 권한 요청 팝업을 표시.
 
-### 접근 데이터
-
-- Heart Rate (심박수)
-- ECG (심전도)
-- SpO2 (산소포화도)
+권한 거부 시 설정 앱 이동을 통해 권한 재설정을 지원.
 
 ---
 
-### 권한 흐름
-
-- 앱 최초 실행 시 권한 요청 팝업 표시
-- 사용자가 거부한 경우
-
-→ "권한 설정" 버튼 클릭 시 설정 앱으로 이동
-
----
-
-## 6. Data Flow (데이터 흐름)
+## 6. Data Flow
 
 ```
-
 Apple Watch
-↓
+        ↓
 Apple Health (iPhone)
-↓
-iOS Relay App
-↓
+        ↓
+VitaCore iOS Relay App
+        ↓
 VitaCore Backend API
-↓
-Database 저장
-
+        ↓
+MariaDB
 ```
 
 ---
 
 ## 7. API Communication
 
+iOS 앱은 Backend REST API 기반으로 통신.
+
+### 주요 요청
+
 - 연결 코드 검증 요청
 - 바이탈 데이터 업로드 요청
 
 ### 특징
 
-- 모든 통신은 HTTPS 기반
+- HTTPS 기반 통신
 - 인증된 연결 코드만 데이터 전송 허용
+- Backend API 기반 데이터 검증 수행
 
 ---
 
-## 8. Security Design (보안 설계)
+## 8. Security Design
 
-- 연결 코드 기반 인증 (Connection Code)
-- 만료된 코드 사용 불가
-- 서버 검증 후에만 데이터 전송 가능
+iOS 앱은 Connection Code 기반 인증 구조를 사용.
 
-### Zero Trust 활용
+- 만료된 연결 코드 사용 제한
+- 사용 완료 코드 재사용 차단
+- 서버 검증 완료 후 데이터 전송 허용
+- 등록된 device_identifier 기반 기기 검증 수행
 
-- 모든 요청은 매번 검증
-- 신뢰하지 않고 검증하는 구조 적용
+### Zero Trust Concept
+
+모든 요청은 서버에서 매 요청마다 검증.
+
+신뢰하지 않고 검증하는 구조를 기반으로 설계.
+
+--- 
+
+## 9. Error Handling
+
+다음 상황에 대한 예외 처리를 구성.
+
+- 연결 코드 검증 실패
+- 네트워크 오류
+- 서버 응답 실패
+- HealthKit 권한 거부
+- 데이터 전송 실패
+- 타임아웃 발생
+
+오류 발생 시 사용자에게 재시도 흐름을 제공.
 
 ---
 
-## 9. Implementation Plan (구현 계획)
+## 10. Device Test
 
-1. Xcode 프로젝트 생성
-2. HealthKit 권한 설정
-3. 연결 코드 입력 UI 구현
-4. 서버 API 연결
-5. 데이터 전송 기능 구현
-6. 예외 처리 및 실패 케이스 대응
-7. 실제 디바이스 테스트 (Apple Watch 연동)
+실제 iPhone 및 Apple Watch 환경에서 테스트 수행.
 
----
+- HealthKit 권한 요청 검증
+- 실측 Heart Rate 데이터 전송 검증
+- 연결 코드 기반 기기 등록 검증
+- Backend API 연동 검증
 
-## 10. Error Handling
-
-- 연결 코드 실패 → 입력 화면 유지 + 에러 메시지 표시
-- 네트워크 실패 → 재시도 안내
-- HealthKit 권한 없음 → 설정 이동 유도
-- 서버 응답 없음 → 타임아웃 처리
+시뮬레이터 환경에서는 HealthKit 데이터 테스트에 제한 존재.
 
 ---
 
 ## 11. Notes
 
-- iOS 앱은 실제 배포가 아닌 중계용으로 사용
-- Apple Watch → iPhone → Server 구조를 기반으로 동작
-- 시뮬레이터에서는 HealthKit 데이터 테스트 제한 존재
+iOS 앱은 App Store 배포 목적이 아닌,     
+VitaCore 웹 플랫폼과 Apple Health 데이터를 연결하기 위한 Relay Application 역할로 사용.
+
+전체 구조는 Apple Watch → iPhone → Backend API 기반 데이터 흐름 중심으로 구성.
