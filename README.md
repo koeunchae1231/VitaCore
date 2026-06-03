@@ -201,3 +201,11 @@ educational simulation platform으로 개발.
 * iOS relay app implementation completed
 * Wearable → iOS → Backend flow implemented
 * Vital monitoring system implemented
+
+---
+
+## Additional Documents
+
+- [Architecture Design](./docs/architecture_design.md)
+- [Modeling Design](./docs/modeling_design.md)
+- [Security Notes](./docs/security.md)
