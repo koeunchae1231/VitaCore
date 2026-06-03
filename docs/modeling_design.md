@@ -44,7 +44,7 @@ VitaCore는 다음 목표를 기반으로 데이터 구조를 설계.
 
 ## Domain Relationship
 
-```
+```text
 User 1 : N Character
 Character 1 : N Measurement
 Character 1 : N AppDevice
@@ -73,7 +73,7 @@ VitaCore는 measurement 데이터를 overwrite하지 않는 구조로 설계.
 
 측정 데이터는 source_type 기반으로 구분.
 
-```
+```text
 device
 simulation
 manual
@@ -95,7 +95,7 @@ manual correction 발생 시,
 
 수정 데이터는 original_measurement_id를 통해 원본 데이터와 연결.
 
-```
+```text
 original_measurement_id
 ```
 
@@ -144,7 +144,41 @@ vital_types 테이블로 분리하여 관리.
 
 ---
 
-# 6. Database Physical Design
+# 6. System Modeling Diagrams
+
+## Data Flow Diagram (DFD)
+
+![DFD](./DFD.png)
+
+* Wearable → iOS → Backend 구조
+* Backend 중심 데이터 처리 구조
+* 측정 데이터 저장 후 시뮬레이션 수행
+* 결과 데이터 시각화 구조
+
+---
+
+## Entity Relationship Diagram (ERD)
+
+![ERD](./ERD.png)
+
+### Main Relationship
+
+* User 1 : N Character
+* Character 1 : N Measurement
+* Character 1 : N AppDevice
+* Measurement 1 : N WaveMeasurement
+* VitalType 1 : N Measurement
+
+### Modeling Focus
+
+* Immutable measurement structure
+* Explicit relationship modeling
+* Measurement history preservation
+* Separation of waveform and numeric data
+
+---
+
+# 7. Database Physical Design
 
 ## users
 
@@ -205,13 +239,13 @@ vital_types 테이블로 분리하여 관리.
 
 ---
 
-# 7. Backend-centered Data Structure
+# 8. Backend-centered Data Structure
 
 Frontend는 Database에 직접 접근하지 않음.
 
 모든 데이터 처리는 Backend API를 통해 수행.
 
-```
+```text
 Frontend
     ↓
 Backend API
@@ -229,7 +263,7 @@ Database
 
 ---
 
-# 8. Modeling Rules
+# 9. Modeling Rules
 
 ## Identifier Rules
 
@@ -247,7 +281,7 @@ Database
 
 예시:
 
-```
+```text
 users
 characters
 measurements
@@ -262,7 +296,7 @@ wave_measurements
 
 예시:
 
-```
+```text
 created_at
 updated_at
 measured_at
@@ -271,9 +305,9 @@ expires_at
 
 ---
 
-# 9. Modeling Philosophy
+# 10. Modeling Philosophy
 
-VitaCore는 
+VitaCore는
 
 * immutable data handling
 * explicit relationship modeling
@@ -281,3 +315,15 @@ VitaCore는
 * backend-centered processing
 
 구조를 유지하는 방향으로 모델링 및 설계를 진행.
+
+---
+
+# 11. Additional Design Documents
+
+추가 설계 과정 및 개발 진행 내용은 아래 문서에서 확인 가능.
+
+* [VitaCore Development Mid Report](./VitaCore_Dev_Mid_Report.pdf)
+
+실제 배포된 프로젝트 진행 내용은 아래 문서에서 확인 가능.
+
+* [VitaCore Service Flow](./VitaCore_Service_Flow.pdf)
