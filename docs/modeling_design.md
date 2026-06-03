@@ -273,7 +273,7 @@ expires_at
 
 # 9. Modeling Philosophy
 
-VitaCore는 단순 CRUD 구조보다는,
+VitaCore는 
 
 * immutable data handling
 * explicit relationship modeling
