@@ -4,6 +4,16 @@ Security-focused vital simulation platform based on physiology and wearable data
 
 생리학 기반 바이탈 시뮬레이션 및 웨어러블 데이터 연동 플랫폼
 
+> Web-based physiology simulation platform with   
+> wearable data relay and security-focused backend design.  
+
+---
+
+## Live Service
+
+VitaCore Web Platform   
+https://www.myvitacore.org/  
+
 ---
 
 ## 1. About VitaCore
