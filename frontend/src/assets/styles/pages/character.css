@@ -271,13 +271,6 @@
 }
 
 /*
-  CMD: 제목
-*/
-.character-cmd-title {
-  display: none;
-}
-
-/*
   CMD 바이탈 목록
 */
 .character-cmd-list {
@@ -442,10 +435,6 @@
   display: flex;
   gap: 10px;
   margin-top: 14px;
-}
-
-.character-command-input {
-  flex: 1;
 }
 
 .character-command-row .btn {

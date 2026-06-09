@@ -229,38 +229,6 @@
 
 
 /* =========================
-   Auth Links
-========================= */
-
-.auth-links {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-
-  margin-top: 18px;
-}
-
-.auth-link-button {
-  padding: 0;
-
-  border: none;
-  background: transparent;
-
-  color: var(--color-text-muted);
-
-  font-size: 0.88rem;
-
-  cursor: pointer;
-
-  transition: color 0.18s ease;
-}
-
-.auth-link-button:hover {
-  color: var(--color-primary);
-}
-
-
-/* =========================
    Responsive
 ========================= */
 
@@ -302,11 +270,6 @@
 
   .input-action {
     width: 100%;
-  }
-
-  .auth-links {
-    flex-direction: column;
-    gap: 8px;
   }
 
   .splash-image {

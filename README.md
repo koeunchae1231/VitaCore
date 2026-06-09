@@ -1,211 +1,200 @@
 # VitaCore
 
-Security-focused vital simulation platform based on physiology and wearable data
+Security-focused vital simulation platform based on physiology and wearable data.
 
-생리학 기반 바이탈 시뮬레이션 및 웨어러블 데이터 연동 플랫폼
+## Project Overview
 
-> Web-based physiology simulation platform with   
-> wearable data relay and security-focused backend design.  
+VitaCore is a web-based vital monitoring and simulation project. It combines a React frontend, an Express backend, and a MariaDB schema to model character-based vital signs, manual corrections, simulated changes, device-submitted measurements, and security event logging.
 
----
+The project is not a medical product. It is built to demonstrate application structure, data flow, authentication, audit logging, and measurement handling.
 
-## Live Service
+## Key Features
 
-VitaCore Web Platform   
-https://www.myvitacore.org/  
+- JWT-based authentication with protected API routes.
+- Email verification for signup and account recovery flows.
+- Character profile management with vital state display.
+- Vital measurement handling for manual, simulation, and device sources.
+- Immutable measurement history using new records instead of overwriting source records.
+- Device connection flow using connection codes and registered device identifiers.
+- Security event logging for authentication, device, manual update, command, and anomaly events.
+- Lightweight anomaly detection for out-of-range vital values.
 
----
-
-## 1. About VitaCore
-
-VitaCore는 실측 바이탈 데이터와 시뮬레이션 데이터를 함께 활용하여
-생체 신호를 시각화하는 웹 기반 프로젝트.
-
-단순 데이터 조회 서비스가 아니라,
-
-* physiology-based simulation
-* secure backend structure
-* immutable measurement history
-* device verification flow
-
-구조를 직접 설계 및 구현하는 것을 목표로 개발.
-
----
-
-## 2. Motivation
-
-생리학과 IT를 결합한 프로젝트를 직접 만들어보고 싶다는 생각에서 시작.
-
-의료 진단 서비스보다는,
-
-* 바이탈 데이터 흐름
-* 보안 구조
-* 데이터 무결성
-* 시뮬레이션 기반 상태 변화
-
-를 구현하는 교육용 플랫폼 방향으로 설계.
-
----
-
-## 3. Main Features
-
-### Authentication & Authorization
-
-* JWT 기반 인증 구조 사용
-* 이메일 인증 기반 회원가입 구현
-* 보호 API 접근 시 JWT 검증 수행
-* 사용자 소유 캐릭터 기반 접근 제어 구현
-
-### Device Connection
-
-* connection code 기반 기기 연결 구조 구현
-* 1회용 코드 + 만료 시간 적용
-* 등록된 기기 기반 측정값 전송 검증
-
-### Vital Simulation
-
-* HR, SpO2, RR, BP, MAP, TEMP 바이탈 처리
-* 실측 데이터 + 시뮬레이션 데이터 분리 저장
-* manual correction 이력 관리 구조 구현
-
-### Security Logging
-
-* 주요 이벤트를 security_events 기반으로 기록
-* 로그인 실패 / 기기 거부 / 이상 탐지 로그 저장
-* anomaly detection 기반 위험 상태 기록
-
----
-
-## 4. Tech Stack
-
-### Frontend
-
-* React
-* Vite
-* JavaScript
-* CSS
-
-### Backend
-
-* Node.js
-* Express
-* MariaDB
-* JWT
-* bcrypt
-
-### iOS Relay App
-
-* Swift
-* SwiftUI
-* HealthKit
-
----
-
-## 4. System Flow
+## Architecture
 
 ```text
-Wearable / HealthKit
-        ↓
-iOS Relay App
-        ↓
-Express Backend API
-        ↓
-MariaDB
-        ↓
-React Web Client
+React / Vite frontend
+        |
+        v
+Express API server
+        |
+        v
+MariaDB database
 ```
 
-Frontend는 DB에 직접 접근하지 않으며,
+The frontend does not access the database directly. Authentication, authorization, measurement processing, device validation, and security event recording are handled by the backend API.
 
-* authentication
-* authorization
-* simulation logic
-* device validation
-* measurement processing
+Measurement-specific mapping and rules are split into focused backend helper modules:
 
-모든 처리는 backend API 중심으로 구성.
+- `backend/src/services/measurement/measurementMapper.js`
+- `backend/src/services/measurement/measurementRules.js`
 
----
+Character event and command display helpers are split into focused frontend utility modules:
 
-## 5. Data Design
+- `frontend/src/utils/securityEventDisplay.js`
+- `frontend/src/utils/characterCommands.js`
 
-원본 측정값은 직접 수정하지 않음.
+## Tech Stack
 
-수동 수정 또는 시뮬레이션 결과 발생 시
-새로운 measurement record를 생성하는 방식으로 구현.
+Frontend:
 
-source_type 기반으로:
+- React
+- Vite
+- JavaScript
+- CSS
 
-* device
-* simulation
-* manual
+Backend:
 
-데이터를 구분하여 관리.
+- Node.js
+- Express
+- MariaDB-compatible SQL schema
+- `mysql2`
+- JWT
+- bcrypt
+- Resend email API
 
-또한 original_measurement_id를 통해
-원본 데이터와 수정 데이터를 연결.
+## Security Highlights
 
----
+- Passwords are stored as bcrypt hashes.
+- API authentication uses JWT bearer tokens.
+- Protected routes validate the authenticated user before handling private data.
+- Email verification codes are hashed before storage.
+- Device-submitted measurements are checked against registered device records.
+- Important security and audit events are written to `security_events`.
+- Older security events can be archived into `security_event_archives`.
+- Development CORS is currently open; production deployments should restrict allowed origins.
 
-## 6. Security Design
+## Project Structure
 
-VitaCore는 설명 가능한 수준의 보안 구조 구현을 목표로 개발.
+```text
+.
+|-- backend/
+|   |-- src/
+|   |   |-- config/
+|   |   |-- controllers/
+|   |   |-- middlewares/
+|   |   |-- routes/
+|   |   |-- services/
+|   |   |   `-- measurement/
+|   |   |-- templates/
+|   |   |-- utils/
+|   |   `-- validators/
+|   `-- package.json
+|-- frontend/
+|   |-- src/
+|   |   |-- api/
+|   |   |-- assets/
+|   |   |-- components/
+|   |   |-- pages/
+|   |   `-- utils/
+|   `-- package.json
+|-- docs/
+|-- vitacore.sql
+`-- package.json
+```
 
-구현 내용:
+## Environment Variables
 
-* bcrypt password hashing
-* JWT authentication
-* protected API routes
-* ownership validation
-* device verification
-* one-time connection code
-* security event logging
-* lightweight anomaly detection
+Backend variables are read from `backend/.env`.
 
----
+```env
+PORT=5000
+NODE_ENV=development
 
-## 7. Local Commands
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=vitacore
 
-### Frontend Build
+JWT_SECRET=replace_with_a_strong_secret
+
+RESEND_API_KEY=your_resend_api_key
+EMAIL_FROM=VitaCore <noreply@example.com>
+EMAIL_USER=optional_sender_address
+```
+
+Frontend variables are read from `frontend/.env` when needed.
+
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+Keep local `.env` files out of version control.
+
+## Database Setup
+
+1. Create a MariaDB database for VitaCore.
+2. Import the schema from `vitacore.sql`.
+3. Configure the backend database variables in `backend/.env`.
+4. Start the backend and confirm that the database connection log appears.
+
+The server currently logs database connection test failures during startup instead of always stopping the process. The security event archive table check is also logged if it fails. Production deployments should add stricter environment validation and log monitoring around these startup checks.
+
+## Run Locally
+
+Install dependencies:
 
 ```bash
-npm run build
+cd backend
+npm install
+
+cd ../frontend
+npm install
 ```
 
-### Backend Start
+Start the backend:
 
 ```bash
 cd backend
 npm start
 ```
 
-환경 변수는 `backend/.env` 에서 관리.
+Start the frontend:
 
----
+```bash
+cd frontend
+npm run dev
+```
 
-## 8. Disclaimer
+## Build / Verify
 
-VitaCore는 의료 진단/치료 목적 서비스가 아님.
+Frontend build:
 
-생리학 기반 데이터 흐름과    
-보안 중심 시스템 구조를 학습 및 구현하기 위한    
-educational simulation platform으로 개발.
+```bash
+cd frontend
+npm run build
+```
 
----
+Backend JavaScript syntax check from the repository root:
 
-## 9. Status
+```powershell
+Get-ChildItem -Path backend\src -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }
+```
 
-* Frontend implementation completed
-* Backend API implementation completed
-* Database design completed
-* iOS relay app implementation completed
-* Wearable → iOS → Backend flow implemented
-* Vital monitoring system implemented
+Diff whitespace check:
 
----
+```bash
+git diff --check
+```
 
-## Additional Documents
+There is no dedicated automated test suite in the current project.
+
+## Documentation
 
 - [Architecture Design](./docs/architecture_design.md)
 - [Modeling Design](./docs/modeling_design.md)
 - [Security Notes](./docs/security.md)
+
+## Disclaimer
+
+VitaCore is an educational simulation project. It is not intended for medical diagnosis, treatment, patient monitoring, emergency response, or clinical decision-making.
