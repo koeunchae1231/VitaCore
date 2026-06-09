@@ -1,4 +1,3 @@
-// backend/src/services/characterService.js
 const dbQuery = require("../utils/dbQuery");
 const createError = require("../utils/createError");
 const { logSecurityEvent } = require("./securityEventService");

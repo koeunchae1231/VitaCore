@@ -1,4 +1,3 @@
-// backend/src/routes/measurementRoutes.js
 const express = require("express");
 const authenticateToken = require("../middlewares/authMiddleware");
 const measurementController = require("../controllers/measurementController");

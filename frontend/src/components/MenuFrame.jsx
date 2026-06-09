@@ -1,5 +1,3 @@
-// frontend/src/components/MenuFrame.jsx
-
 /**
  * MenuFrame
  *

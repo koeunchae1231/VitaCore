@@ -1,4 +1,3 @@
-// backend/src/utils/createError.js
 function createError(message, statusCode = 500, options = {}) {
   const error = new Error(message);
   error.statusCode = statusCode;

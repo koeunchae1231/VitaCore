@@ -332,6 +332,30 @@ export default function VitalPage() {
     }
   }
 
+  function stepTowardHomeostasis(current, targetVitals) {
+    const currentVitals =
+      current || getStoredVitals(selectedCharacterId) || targetVitals;
+
+    if (areVitalsEqual(currentVitals, targetVitals)) {
+      if (homeostasisActiveRef.current) {
+        homeostasisActiveRef.current = false;
+        setEventLog(HOMEOSTASIS_COMPLETE_MESSAGE);
+        addVitalEvent(HOMEOSTASIS_COMPLETE_MESSAGE);
+      }
+      return currentVitals;
+    }
+
+    if (!homeostasisActiveRef.current) {
+      homeostasisActiveRef.current = true;
+      setEventLog(HOMEOSTASIS_START_MESSAGE);
+      addVitalEvent(HOMEOSTASIS_START_MESSAGE);
+    }
+
+    const nextVitals = applyHomeostasis(currentVitals, targetVitals);
+    setStoredVitals(selectedCharacterId, nextVitals);
+    return nextVitals;
+  }
+
   useEffect(() => {
     loadLatestVitals();
   }, [selectedCharacterId]);
@@ -367,30 +391,7 @@ export default function VitalPage() {
 
     const timer = window.setInterval(() => {
       const targetVitals = getDefaultVitalsByBmi(bmi);
-
-      setVitals((current) => {
-        const currentVitals =
-          current || getStoredVitals(selectedCharacterId) || targetVitals;
-
-        if (areVitalsEqual(currentVitals, targetVitals)) {
-          if (homeostasisActiveRef.current) {
-            homeostasisActiveRef.current = false;
-            setEventLog(HOMEOSTASIS_COMPLETE_MESSAGE);
-            addVitalEvent(HOMEOSTASIS_COMPLETE_MESSAGE);
-          }
-          return currentVitals;
-        }
-
-        if (!homeostasisActiveRef.current) {
-          homeostasisActiveRef.current = true;
-          setEventLog(HOMEOSTASIS_START_MESSAGE);
-          addVitalEvent(HOMEOSTASIS_START_MESSAGE);
-        }
-
-        const nextVitals = applyHomeostasis(currentVitals, targetVitals);
-        setStoredVitals(selectedCharacterId, nextVitals);
-        return nextVitals;
-      });
+      setVitals((current) => stepTowardHomeostasis(current, targetVitals));
     }, 1000);
 
     return () => window.clearInterval(timer);

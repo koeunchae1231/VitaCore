@@ -1,4 +1,3 @@
-// backend/src/validators/measurementValidator.js
 const createError = require("../utils/createError");
 
 function validateCreateMeasurement(req, res, next) {

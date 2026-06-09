@@ -1,5 +1,3 @@
-// backend/src/controllers/authController.js
-// backend/src/controllers/authController.js
 const authService = require("../services/authService");
 
 async function requestVerification(req, res, next) {

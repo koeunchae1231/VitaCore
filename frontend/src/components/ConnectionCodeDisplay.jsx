@@ -1,5 +1,3 @@
-// frontend/src/components/ConnectionCodeDisplay.jsx
-
 /**
  * ConnectionCodeDisplay
  *

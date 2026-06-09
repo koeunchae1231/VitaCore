@@ -1,4 +1,3 @@
-// backend/src/routes/connectionCodeRoutes.js
 const express = require("express");
 const authenticateToken = require("../middlewares/authMiddleware");
 const connectionCodeController = require("../controllers/connectionCodeController");

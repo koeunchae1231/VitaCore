@@ -1,4 +1,3 @@
-// backend/src/validators/connectionCodeValidator.js
 const createError = require("../utils/createError");
 
 function validateCreateConnectionCode(req, res, next) {

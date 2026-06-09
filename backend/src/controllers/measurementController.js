@@ -1,4 +1,3 @@
-// backend/src/controllers/measurementController.js
 const measurementService = require("../services/measurementService");
 
 async function createMeasurement(req, res, next) {

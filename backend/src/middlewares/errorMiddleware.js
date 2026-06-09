@@ -1,4 +1,3 @@
-// backend/src/middlewares/errorMiddleware.js
 function errorMiddleware(err, req, res, next) {
   console.error("[ERROR]", err);
 

@@ -1,4 +1,3 @@
-// backend/src/services/waveMeasurementService.js
 const dbQuery = require("../utils/dbQuery");
 const createError = require("../utils/createError");
 

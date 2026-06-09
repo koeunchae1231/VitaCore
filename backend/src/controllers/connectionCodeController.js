@@ -1,4 +1,3 @@
-// backend/src/controllers/connectionCodeController.js
 const connectionCodeService = require("../services/connectionCodeService");
 
 async function createConnectionCode(req, res, next) {

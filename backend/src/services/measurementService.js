@@ -3,67 +3,20 @@ const dbQuery = require("../utils/dbQuery");
 const createError = require("../utils/createError");
 const { logSecurityEvent } = require("./securityEventService");
 const { isDeviceExpired, markInactiveDevices } = require("./devicePolicyService");
-
-const VITAL_UNITS = {
-  HR: "bpm",
-  SPO2: "%",
-  RR: "breaths/min",
-  SBP: "mmHg",
-  DBP: "mmHg",
-  MAP: "mmHg",
-  TEMP: "C",
-};
+const {
+  buildMonitor,
+  getVitalUnit,
+  toIso,
+  toMeasurementResponse,
+} = require("./measurement/measurementMapper");
+const {
+  deriveRrFromSpo2,
+  detectMeasurementAnomaly,
+} = require("./measurement/measurementRules");
 
 const SNAPSHOT_TYPES = ["HR", "SPO2", "RR", "SBP", "DBP", "MAP", "TEMP"];
-const DEFAULT_DERIVED_RR = 16;
 const BODY_TEMP_MIN = 34;
 const BODY_TEMP_MAX = 42;
-
-function getVitalUnit(vitalType) {
-  return VITAL_UNITS[vitalType] || "";
-}
-
-function toIso(value) {
-  return value ? new Date(value).toISOString() : null;
-}
-
-function formatVitalValue(value, fallback = "000") {
-  return value === null || value === undefined ? fallback : String(value);
-}
-
-function buildMonitor(vitals) {
-  const sbp = vitals.SBP?.value;
-  const dbp = vitals.DBP?.value;
-
-  return {
-    hr: formatVitalValue(vitals.HR?.value),
-    spo2: formatVitalValue(vitals.SPO2?.value),
-    rr: formatVitalValue(vitals.RR?.value),
-    temp: formatVitalValue(vitals.TEMP?.value, "00.0"),
-    bp:
-      dbp === null || dbp === undefined || sbp === null || sbp === undefined
-        ? "DBP/SBP"
-        : `${sbp}/${dbp}`,
-    map:
-      vitals.MAP?.value === null || vitals.MAP?.value === undefined
-        ? "(MAP)"
-        : String(vitals.MAP.value),
-  };
-}
-
-function toMeasurementResponse(row) {
-  return {
-    id: row.id,
-    characterId: row.character_id,
-    vitalType: row.vital_type,
-    value: Number(row.value),
-    unit: getVitalUnit(row.vital_type),
-    sourceType: row.source_type || "device",
-    appDeviceId: row.app_device_id,
-    measuredAt: toIso(row.measured_at || row.measurement_timestamp),
-    createdAt: toIso(row.created_at || row.measured_at || row.measurement_timestamp),
-  };
-}
 
 function parsePositiveInt(value, fallback) {
   const parsed = Number(value);
@@ -72,21 +25,6 @@ function parsePositiveInt(value, fallback) {
 
 function isValidBodyTemperature(value) {
   return Number(value) >= BODY_TEMP_MIN && Number(value) <= BODY_TEMP_MAX;
-}
-
-function deriveRrFromSpo2(spo2, baseRr = DEFAULT_DERIVED_RR) {
-  const numericSpo2 = Number(spo2);
-  const numericBase = Number(baseRr);
-  const safeBase = Number.isFinite(numericBase) ? numericBase : DEFAULT_DERIVED_RR;
-  let adjustment = 0;
-
-  if (numericSpo2 < 90) {
-    adjustment = 6;
-  } else if (numericSpo2 < 95) {
-    adjustment = 3;
-  }
-
-  return Math.max(6, Math.min(40, Math.round(safeBase + adjustment)));
 }
 
 function maskDeviceIdentifier(identifier) {
@@ -229,54 +167,6 @@ async function findVitalType(vitalType) {
   }
 
   return results[0];
-}
-
-function detectMeasurementAnomaly(vitalCode, value) {
-  switch (vitalCode) {
-    case "HR":
-      if (value <= 35 || value >= 180) {
-        return { type: "ANOMALY_DETECTED", description: `위험 HR 감지: HR=${value}` };
-      }
-      return null;
-
-    case "SPO2":
-      if (value <= 85) {
-        return { type: "ANOMALY_DETECTED", description: `위험 SpO2 감지: SpO2=${value}` };
-      }
-      return null;
-
-    case "RR":
-      if (value <= 6 || value >= 40) {
-        return { type: "ANOMALY_DETECTED", description: `위험 RR 감지: RR=${value}` };
-      }
-      return null;
-
-    case "SBP":
-      if (value <= 70 || value >= 200) {
-        return { type: "ANOMALY_DETECTED", description: `위험 SBP 감지: SBP=${value}` };
-      }
-      return null;
-
-    case "DBP":
-      if (value <= 40 || value >= 130) {
-        return { type: "ANOMALY_DETECTED", description: `위험 DBP 감지: DBP=${value}` };
-      }
-      return null;
-
-    case "MAP":
-      if (value < 50) return { type: "ANOMALY_LOW_MAP", description: `MAP=${value}` };
-      if (value > 160) return { type: "ANOMALY_HIGH_MAP", description: `MAP=${value}` };
-      return null;
-
-    case "TEMP":
-      if (value <= 32 || value >= 41) {
-        return { type: "ANOMALY_DETECTED", description: `위험 TEMP 감지: TEMP=${value}` };
-      }
-      return null;
-
-    default:
-      return null;
-  }
 }
 
 async function createMeasurement({ deviceIdentifier, vitalType, value, ipAddress }) {

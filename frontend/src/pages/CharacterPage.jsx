@@ -11,6 +11,15 @@ import CharacterViewer from "../components/CharacterViewer";
 import MonitorFrame from "../components/MonitorFrame";
 import { routes } from "../router";
 import {
+  commandMessages,
+  parseCommandInput,
+} from "../utils/characterCommands";
+import {
+  compactDisplayEvents,
+  isUnsafeEventMessage,
+  toDisplayEvent,
+} from "../utils/securityEventDisplay";
+import {
   WARNING_MESSAGE,
   appendStoredVitalEvent,
   applyCommand,
@@ -55,116 +64,13 @@ function toCharacterReport(character) {
   };
 }
 
-const commandMessages = {
-  APPLY_FLUID: "수액 투여가 적용되었습니다.",
-  APPLY_BLEEDING: "출혈 상태가 적용되었습니다.",
-  APPLY_VASODILATION: "혈관 확장이 적용되었습니다.",
-  APPLY_VASOCONSTRICTION: "혈관 수축이 적용되었습니다.",
-  APPLY_OXYGEN: "산소 공급이 적용되었습니다.",
-  APPLY_HYPOXIA: "산소 부족 상태가 적용되었습니다.",
-  APPLY_HYPERVENTILATION: "과호흡 상태가 적용되었습니다.",
-  APPLY_HYPOVENTILATION: "저호흡 상태가 적용되었습니다.",
-  APPLY_COLD: "저체온 상태가 적용되었습니다.",
-  APPLY_HEAT: "고체온 상태가 적용되었습니다.",
-  APPLY_ACTIVITY: "활동 증가가 적용되었습니다.",
-  APPLY_REST: "휴식 상태가 적용되었습니다.",
-  APPLY_METABOLISM_UP: "대사 증가가 적용되었습니다.",
-  APPLY_METABOLISM_DOWN: "대사 감소가 적용되었습니다.",
-  APPLY_STRESS: "스트레스 상태가 적용되었습니다.",
-  APPLY_RELAXATION: "이완 상태가 적용되었습니다.",
-};
-
 const VITAL_SAVE_KEYS = ["HR", "SBP", "DBP", "RR", "SPO2", "TEMP"];
 
-const EVENT_DISPLAY_MESSAGES = {
-  DEVICE_MEASUREMENT_RECEIVED: "실측 바이탈 정보가 반영되었습니다.",
-  DEVICE_VITAL_UPDATED: "실측 바이탈 정보가 반영되었습니다.",
-  DERIVED_VITAL_UPDATED: "산소포화도 기반으로 호흡수가 갱신되었습니다.",
-  SIMULATION_VITAL_UPDATED: "시뮬레이션 값이 적용되었습니다.",
-  COMMAND_APPLIED: "시뮬레이션 값이 적용되었습니다.",
-  MANUAL_VITAL_UPDATED: "바이탈 정보가 수정되었습니다.",
-  MEASUREMENT_REJECTED: "비정상 체온 값이 감지되어 반영하지 않았습니다.",
-  ANOMALY_DETECTED: WARNING_MESSAGE,
-  ANOMALY_LOW_MAP: WARNING_MESSAGE,
-  ANOMALY_HIGH_MAP: WARNING_MESSAGE,
-};
-
 const EVENT_FETCH_ERROR_MESSAGE = "이벤트 로그를 불러오지 못했습니다.";
-
-function isUnsafeEventMessage(message) {
-  const value = String(message || "");
-  return (
-    !value ||
-    /<!doctype|<html|Cannot GET|characterId=|vitalCode=|source_type=|measured_at=|created_at=/i.test(
-      value
-    )
-  );
-}
 
 function getSafeErrorMessage(err, fallback = "요청 처리 중 오류가 발생했습니다.") {
   const message = String(err?.message || "");
   return isUnsafeEventMessage(message) ? fallback : message;
-}
-
-function getEventMessage(event) {
-  const explicitMessage =
-    event.display_message ||
-    event.displayMessage ||
-    event.user_message ||
-    event.userMessage;
-
-  if (!isUnsafeEventMessage(explicitMessage)) {
-    return explicitMessage;
-  }
-
-  if (event.type === "MEASUREMENT_IGNORED") {
-    return String(event.description || "").includes("RR")
-      ? "호흡수 실측값은 정책에 따라 반영하지 않았습니다."
-      : "비정상 체온 값이 감지되어 반영하지 않았습니다.";
-  }
-
-  return EVENT_DISPLAY_MESSAGES[event.type] || "이벤트가 기록되었습니다.";
-}
-
-function compactDisplayEvents(events) {
-  return events.reduce((acc, event) => {
-    const currentTime = event.createdAt ? new Date(event.createdAt).getTime() : null;
-    const isDuplicate = acc.some((previous) => {
-      const previousTime = previous?.createdAt
-        ? new Date(previous.createdAt).getTime()
-        : null;
-
-      return (
-        previous?.message === event.message &&
-        previous?.type === event.type &&
-        (!currentTime ||
-          !previousTime ||
-          Math.abs(previousTime - currentTime) <= 10000)
-      );
-    });
-
-    if (!isDuplicate) {
-      acc.push(event);
-    }
-
-    return acc;
-  }, []);
-}
-
-function toDisplayEvent(event) {
-  return {
-    id: event.id,
-    message: getEventMessage(event),
-    type:
-      event.type === "ANOMALY_DETECTED" ||
-      event.type === "ANOMALY_LOW_MAP" ||
-      event.type === "ANOMALY_HIGH_MAP" ||
-      event.type === "MEASUREMENT_IGNORED" ||
-      event.type === "MEASUREMENT_REJECTED"
-        ? "warning"
-        : "info",
-    createdAt: event.createdAt,
-  };
 }
 
 async function saveManualVitals(characterId, nextVitals, reason, sourceType = "manual") {
@@ -182,26 +88,6 @@ async function saveManualVitals(characterId, nextVitals, reason, sourceType = "m
       })
     )
   );
-}
-
-function parseCommandInput(input) {
-  const [rawCommand, rawLevel] = input.trim().split(/\s+/);
-  const commandName = rawCommand?.toUpperCase() || "";
-
-  if (!rawLevel) {
-    return { commandName, level: 1 };
-  }
-
-  const level = Number(rawLevel);
-  if (!Number.isInteger(level) || level < 1 || level > 3) {
-    return {
-      commandName,
-      level: 1,
-      error: "레벨은 1~3 사이의 숫자로 입력해 주세요.",
-    };
-  }
-
-  return { commandName, level };
 }
 
 export default function CharacterPage() {

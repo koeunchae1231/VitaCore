@@ -1,5 +1,3 @@
-// frontend/src/components/ConnectionStatusCard.jsx
-
 /**
  * ConnectionStatusCard
  *

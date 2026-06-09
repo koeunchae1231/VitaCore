@@ -1,4 +1,3 @@
-// backend/src/validators/characterValidator.js
 const createError = require("../utils/createError");
 
 function validateCharacterInput(req, res, next) {

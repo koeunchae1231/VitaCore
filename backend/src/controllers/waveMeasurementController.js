@@ -1,4 +1,3 @@
-// backend/src/controllers/waveMeasurementController.js
 const waveMeasurementService = require("../services/waveMeasurementService");
 
 async function createWaveMeasurement(req, res, next) {

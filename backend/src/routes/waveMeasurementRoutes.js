@@ -1,4 +1,3 @@
-// backend/src/routes/waveMeasurementRoutes.js
 const express = require("express");
 
 const authenticateToken = require("../middlewares/authMiddleware");

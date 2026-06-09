@@ -1,4 +1,3 @@
-// frontend/src/components/MonitorFrame.jsx
 
 import { useEffect, useState } from "react";
 

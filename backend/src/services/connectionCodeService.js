@@ -1,4 +1,3 @@
-// backend/src/services/connectionCodeService.js
 const crypto = require("crypto");
 const dbQuery = require("../utils/dbQuery");
 const createError = require("../utils/createError");

@@ -1,4 +1,3 @@
-// backend/src/validators/authValidator.js
 const createError = require("../utils/createError");
 
 function validateRequestVerificationInput(req, res, next) {
