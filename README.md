@@ -1,23 +1,38 @@
 # VitaCore
 
-Security-focused vital simulation platform based on physiology and wearable data.
+VitaCore is a vital monitoring project using wearable data.
 
-## Project Overview
+It is a student project. The goal is to practice full-stack app structure,
+vital data flow, login, device connection, and security logs.
 
-VitaCore is a web-based vital monitoring and simulation project. It combines a React frontend, an Express backend, and a MariaDB schema to model character-based vital signs, manual corrections, simulated changes, device-submitted measurements, and security event logging.
+## About
 
-The project is not a medical product. It is built to demonstrate application structure, data flow, authentication, audit logging, and measurement handling.
+VitaCore is a web app for checking and simulating vital signs.
 
-## Key Features
+It uses:
 
-- JWT-based authentication with protected API routes.
-- Email verification for signup and account recovery flows.
-- Character profile management with vital state display.
-- Vital measurement handling for manual, simulation, and device sources.
-- Immutable measurement history using new records instead of overwriting source records.
-- Device connection flow using connection codes and registered device identifiers.
-- Security event logging for authentication, device, manual update, command, and anomaly events.
-- Lightweight anomaly detection for out-of-range vital values.
+- React frontend
+- Express backend
+- MariaDB database
+- A small iOS app for sending wearable-style data
+
+The project handles character profiles, vital measurements, manual updates,
+simulated changes, device data, and security events.
+
+This is not a medical app. It is for learning and portfolio work.
+
+## Features
+
+- Sign up and sign in with JWT authentication
+- Email verification for signup and account recovery
+- Character profile creation and management
+- Vital sign display for each character
+- Manual, simulation, and device measurement records
+- Measurement history saved as new records
+- Device connection with connection codes
+- Registered device check before accepting device data
+- Security event logs for login, device, command, manual update, and anomaly events
+- Basic anomaly check for out-of-range vital values
 
 ## Architecture
 
@@ -31,14 +46,17 @@ Express API server
 MariaDB database
 ```
 
-The frontend does not access the database directly. Authentication, authorization, measurement processing, device validation, and security event recording are handled by the backend API.
+The frontend calls the backend API.
 
-Measurement-specific mapping and rules are split into focused backend helper modules:
+The frontend does not connect to the database directly. The backend handles
+login, user checks, measurement processing, device checks, and security logs.
+
+Main backend measurement files:
 
 - `backend/src/services/measurement/measurementMapper.js`
 - `backend/src/services/measurement/measurementRules.js`
 
-Character event and command display helpers are split into focused frontend utility modules:
+Main frontend helper files:
 
 - `frontend/src/utils/securityEventDisplay.js`
 - `frontend/src/utils/characterCommands.js`
@@ -56,22 +74,28 @@ Backend:
 
 - Node.js
 - Express
-- MariaDB-compatible SQL schema
+- MariaDB
 - `mysql2`
 - JWT
 - bcrypt
 - Resend email API
 
-## Security Highlights
+iOS:
 
-- Passwords are stored as bcrypt hashes.
-- API authentication uses JWT bearer tokens.
-- Protected routes validate the authenticated user before handling private data.
-- Email verification codes are hashed before storage.
-- Device-submitted measurements are checked against registered device records.
-- Important security and audit events are written to `security_events`.
-- Older security events can be archived into `security_event_archives`.
-- Development CORS is currently open; production deployments should restrict allowed origins.
+- Swift
+- SwiftUI
+- HealthKit
+
+## Security
+
+- Passwords are saved as bcrypt hashes.
+- Private API routes use JWT bearer tokens.
+- Protected routes check the logged-in user.
+- Email verification codes are hashed before saving.
+- Device data is checked with registered device records.
+- Security logs are saved in `security_events`.
+- Old security logs can be moved to `security_event_archives`.
+- CORS is open in development. For production, allowed origins should be limited.
 
 ## Project Structure
 
@@ -97,6 +121,7 @@ Backend:
 |   |   |-- pages/
 |   |   `-- utils/
 |   `-- package.json
+|-- VitaCore-iOS/
 |-- docs/
 |-- vitacore.sql
 `-- package.json
@@ -104,10 +129,10 @@ Backend:
 
 ## Environment Variables
 
-Backend variables are read from `backend/.env`.
+Backend variables are in `backend/.env`.
 
 ```env
-PORT=5000
+PORT=3000
 NODE_ENV=development
 
 DB_HOST=localhost
@@ -123,32 +148,41 @@ EMAIL_FROM=VitaCore <noreply@example.com>
 EMAIL_USER=optional_sender_address
 ```
 
-Frontend variables are read from `frontend/.env` when needed.
+Frontend variables are in `frontend/.env` when needed.
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
-Keep local `.env` files out of version control.
+Do not commit local `.env` files.
 
 ## Database Setup
 
-1. Create a MariaDB database for VitaCore.
-2. Import the schema from `vitacore.sql`.
-3. Configure the backend database variables in `backend/.env`.
-4. Start the backend and confirm that the database connection log appears.
+1. Create a MariaDB database.
+2. Import `vitacore.sql`.
+3. Add database settings to `backend/.env`.
+4. Start the backend.
+5. Check the server log.
 
-The server currently logs database connection test failures during startup instead of always stopping the process. The security event archive table check is also logged if it fails. Production deployments should add stricter environment validation and log monitoring around these startup checks.
+The backend checks the security event archive table when it starts.
+
+Some startup errors are only logged. The server may still run.
+
+For production, the server should check required settings more carefully.
 
 ## Run Locally
 
-Install dependencies:
+Install backend dependencies:
 
 ```bash
 cd backend
 npm install
+```
 
-cd ../frontend
+Install frontend dependencies:
+
+```bash
+cd frontend
 npm install
 ```
 
@@ -168,33 +202,37 @@ npm run dev
 
 ## Build / Verify
 
-Frontend build:
+Build the frontend:
 
 ```bash
 cd frontend
 npm run build
 ```
 
-Backend JavaScript syntax check from the repository root:
+Check backend JavaScript syntax from the project root:
 
 ```powershell
 Get-ChildItem -Path backend\src -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }
 ```
 
-Diff whitespace check:
+Check whitespace in git diff:
 
 ```bash
 git diff --check
 ```
 
-There is no dedicated automated test suite in the current project.
+There are no automated tests yet.
 
 ## Documentation
 
 - [Architecture Design](./docs/architecture_design.md)
 - [Modeling Design](./docs/modeling_design.md)
 - [Security Notes](./docs/security.md)
+- [iOS README](./VitaCore-iOS/README.md)
 
 ## Disclaimer
 
-VitaCore is an educational simulation project. It is not intended for medical diagnosis, treatment, patient monitoring, emergency response, or clinical decision-making.
+VitaCore is an educational simulation project.
+
+It is not for medical diagnosis, treatment, patient monitoring, emergency
+response, or clinical decisions.
