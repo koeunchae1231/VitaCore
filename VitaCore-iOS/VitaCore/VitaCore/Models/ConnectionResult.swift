@@ -20,6 +20,7 @@ struct ConnectionResult: Decodable {
     let valid: Bool?
     let verified: Bool?
     let connected: Bool?
+    let deviceToken: String?
 
     enum CodingKeys: String, CodingKey {
         case message
@@ -28,6 +29,7 @@ struct ConnectionResult: Decodable {
         case valid
         case verified
         case connected
+        case deviceToken
     }
 
     init(from decoder: Decoder) throws {
@@ -38,6 +40,7 @@ struct ConnectionResult: Decodable {
         valid = Self.decodeFlexibleBool(for: .valid, from: container)
         verified = Self.decodeFlexibleBool(for: .verified, from: container)
         connected = Self.decodeFlexibleBool(for: .connected, from: container)
+        deviceToken = try? container.decodeIfPresent(String.self, forKey: .deviceToken)
     }
 
     private static func decodeFlexibleInt(

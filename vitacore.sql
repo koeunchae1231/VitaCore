@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS `measurements` (
   KEY `idx_measurements_app_device_id` (`app_device_id`),
   KEY `idx_measurements_original_measurement_id` (`original_measurement_id`),
   KEY `idx_measurements_measured_at` (`measured_at`),
+  UNIQUE KEY `uniq_measurements_device_vital_time` (`app_device_id`,`vital_type_id`,`measured_at`),
   CONSTRAINT `fk_measurements_app_device` FOREIGN KEY (`app_device_id`) REFERENCES `app_devices` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_measurements_character` FOREIGN KEY (`character_id`) REFERENCES `characters` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_measurements_original` FOREIGN KEY (`original_measurement_id`) REFERENCES `measurements` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,

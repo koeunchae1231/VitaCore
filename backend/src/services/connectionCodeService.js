@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const dbQuery = require("../utils/dbQuery");
 const createError = require("../utils/createError");
 const { logSecurityEvent } = require("./securityEventService");
+const { issueDeviceToken } = require("./deviceTokenService");
 
 function generateConnectionCode(length = 8) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -306,6 +307,29 @@ async function verifyConnectionCode({
     deviceIdentifier,
   ]);
 
+  const deviceRows = await dbQuery(
+    `
+      SELECT id
+      FROM app_devices
+      WHERE device_identifier = ?
+      LIMIT 1
+    `,
+    [deviceIdentifier]
+  );
+  const deviceId = deviceRows[0]?.id;
+
+  if (!deviceId) {
+    throw createError("Device registration failed.", 500, {
+      code: "DEVICE_REGISTRATION_FAILED",
+    });
+  }
+
+  const deviceToken = issueDeviceToken({
+    deviceId,
+    characterId: connectionCode.character_id,
+    userId: connectionCode.user_id,
+  });
+
   await logSecurityEvent({
     userId: connectionCode.user_id,
     eventType: "CONNECTION_CODE_USED",
@@ -327,6 +351,8 @@ async function verifyConnectionCode({
   return {
     message: "연결에 성공했습니다.",
     characterId: connectionCode.character_id,
+    deviceToken,
+    tokenType: "Bearer",
   };
 }
 

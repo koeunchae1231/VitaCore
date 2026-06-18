@@ -30,6 +30,13 @@ function authenticateToken(req, res, next) {
       });
     }
 
+    if (decoded.tokenType === "device") {
+      return res.status(403).json({
+        message: "User token is required.",
+        code: "USER_TOKEN_REQUIRED",
+      });
+    }
+
     req.user = decoded;
     next();
   });

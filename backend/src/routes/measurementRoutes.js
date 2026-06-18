@@ -1,8 +1,10 @@
 const express = require("express");
 const authenticateToken = require("../middlewares/authMiddleware");
+const authenticateDeviceToken = require("../middlewares/deviceAuthMiddleware");
 const measurementController = require("../controllers/measurementController");
 const {
   validateCreateMeasurement,
+  validateCreateMeasurementBatch,
   validateCharacterId,
   validateManualCorrection,
 } = require("../validators/measurementValidator");
@@ -11,8 +13,15 @@ const router = express.Router();
 
 router.post(
   "/measurements",
+  authenticateDeviceToken,
   validateCreateMeasurement,
   measurementController.createMeasurement
+);
+router.post(
+  "/measurements/batch",
+  authenticateDeviceToken,
+  validateCreateMeasurementBatch,
+  measurementController.createMeasurementBatch
 );
 router.post(
   "/measurements/manual-correction",

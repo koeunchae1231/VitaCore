@@ -3,9 +3,24 @@ const measurementService = require("../services/measurementService");
 async function createMeasurement(req, res, next) {
   try {
     const result = await measurementService.createMeasurement({
-      deviceIdentifier: req.body.deviceIdentifier,
+      deviceId: req.device.deviceId,
       vitalType: req.body.vitalType,
       value: req.body.value,
+      measuredAt: req.body.measuredAt,
+      ipAddress: req.ip,
+    });
+
+    return res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function createMeasurementBatch(req, res, next) {
+  try {
+    const result = await measurementService.createMeasurementBatch({
+      deviceId: req.device.deviceId,
+      measurements: req.body.measurements,
       ipAddress: req.ip,
     });
 
@@ -89,6 +104,7 @@ async function createManualCorrection(req, res, next) {
 
 module.exports = {
   createMeasurement,
+  createMeasurementBatch,
   getLatestMeasurement,
   getMeasurementHistory,
   getLatestVitals,

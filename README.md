@@ -221,7 +221,12 @@ Check whitespace in git diff:
 git diff --check
 ```
 
-There are no automated tests yet.
+Run backend tests:
+
+```bash
+cd backend
+npm test
+```
 
 ## Documentation
 
@@ -229,6 +234,126 @@ There are no automated tests yet.
 - [Modeling Design](./docs/modeling_design.md)
 - [Security Notes](./docs/security.md)
 - [iOS README](./VitaCore-iOS/README.md)
+
+## Troubleshooting & Improvements
+
+### 1. Device Authentication
+
+#### Problem
+
+* /api/measurements API가 인증 없이 데이터를 받아 스푸핑 공격 가능성이 존재했습니다.
+
+#### Cause
+
+* Connection Code를 기기 식별 용도로만 사용했고, 실제 인증(Authentication) 경계가 없었습니다.
+
+#### Solution
+
+* Connection Code 인증 이후 Device JWT를 발급하도록 변경
+* iOS는 Keychain에 Device JWT 저장
+* 모든 측정 데이터 전송은 Authorization Bearer Token을 통해 인증
+* 서버는 Device JWT 검증 후에만 저장
+
+#### Result
+
+* 인증과 식별을 분리
+* 임의 데이터 조작 위험 감소
+* Secure by Design 원칙 강화
+
+---
+
+### 2. Offline Synchronization
+
+#### Problem
+
+* 네트워크 단절 시 측정 데이터가 유실되었습니다.
+
+#### Cause
+
+* 최신 HealthKit 데이터 1건만 즉시 전송하는 구조였습니다.
+
+#### Solution
+
+* lastSyncedAt 기반 Cursor Sync 도입
+* Batch Measurement API 추가
+* 재전송 및 중복 방지 로직 적용
+
+#### Result
+
+* 오프라인 데이터 보존
+* 안정적인 대량 동기화
+* 헬스케어 서비스 신뢰성 향상
+
+---
+
+### 3. Measurement Rule Refactoring
+
+#### Problem
+
+* 이상치 탐지 임계값이 코드에 하드코딩되어 있었습니다.
+
+#### Cause
+
+* 초기 MVP 구현 단계에서 단순 Switch 기반으로 작성했습니다.
+
+#### Solution
+
+* Rule Config로 분리
+* 향후 DB 기반 Rule Engine으로 확장 가능한 구조로 변경
+
+#### Result
+
+* 유지보수 향상
+* 환자별 Rule 확장 가능
+* 재배포 없이 규칙 변경 가능한 방향 확보
+
+---
+
+### Device Authentication Flow
+
+1. The web app creates a short-lived connection code for a character.
+2. The iOS app verifies the connection code with its device identifier and device name.
+3. The backend registers or reactivates the device and returns a Device JWT.
+4. The iOS app stores the Device JWT in Keychain.
+5. `/api/measurements` and `/api/measurements/batch` require `Authorization: Bearer <deviceToken>`.
+6. Manual correction keeps the existing user JWT flow.
+
+### Offline Sync / Batch Measurement Flow
+
+1. The iOS app stores `lastSyncedAt` in `UserDefaults`.
+2. On transfer, HealthKit samples after `lastSyncedAt` are collected.
+3. The app sends those samples to `POST /api/measurements/batch`.
+4. The backend validates the Device JWT and processes each measurement.
+5. Duplicate device measurements are checked by device, vital type, and measurement timestamp.
+6. The app updates `lastSyncedAt` only after a successful batch response, so failed transfers can be retried.
+
+### Measurement Rule Configuration
+
+Measurement anomaly thresholds are defined in:
+
+```text
+backend/src/services/measurement/measurementRuleConfig.js
+```
+
+`detectMeasurementAnomaly(vitalCode, value, profile)` keeps the existing call pattern and reads from the rule config. The optional profile argument leaves room for age, gender, or character-specific rule selection later.
+
+### Security Improvements
+
+* Device JWT authentication was added for device-originated measurement writes.
+* User JWT authentication remains separate for user actions such as manual correction.
+* Device identifier and connection code are no longer treated as measurement authentication credentials.
+* Batch writes reuse the same Device JWT boundary as single measurement writes.
+
+### Test 실행 방법
+
+```bash
+cd backend
+npm test
+```
+
+The backend test suite checks missing device token rejection, valid device token acceptance, batch endpoint authentication, and config-based anomaly detection.
+
+> This repository has been continuously improved based on code reviews, architecture reviews, and GitHub portfolio feedback. Each improvement focuses on strengthening security, reliability, and maintainability while keeping the original architecture intact.
 
 ## Disclaimer
 

@@ -2,23 +2,89 @@ const createError = require("../utils/createError");
 
 function validateCreateMeasurement(req, res, next) {
   try {
-    let { deviceIdentifier, vitalType, value } = req.body;
+    let { deviceIdentifier, vitalType, value, measuredAt } = req.body;
 
-    if (!deviceIdentifier || !vitalType || value === undefined) {
-      throw createError("deviceIdentifier, vitalType, value는 필수입니다.", 400);
+    if (!vitalType || value === undefined) {
+      throw createError("vitalType and value are required.", 400);
     }
 
-    deviceIdentifier = String(deviceIdentifier).trim();
+    deviceIdentifier =
+      deviceIdentifier === undefined || deviceIdentifier === null
+        ? null
+        : String(deviceIdentifier).trim();
     vitalType = String(vitalType).trim().toUpperCase();
     value = Number(value);
 
-    if (!deviceIdentifier || !vitalType || Number.isNaN(value)) {
-      throw createError("유효하지 않은 입력입니다.", 400);
+    if (!vitalType || Number.isNaN(value)) {
+      throw createError("Invalid measurement input.", 400);
+    }
+
+    if (measuredAt !== undefined && measuredAt !== null && measuredAt !== "") {
+      const parsedMeasuredAt = new Date(measuredAt);
+      if (Number.isNaN(parsedMeasuredAt.getTime())) {
+        throw createError("Invalid measuredAt.", 400, {
+          code: "INVALID_MEASURED_AT",
+        });
+      }
+      measuredAt = parsedMeasuredAt;
+    } else {
+      measuredAt = new Date();
     }
 
     req.body.deviceIdentifier = deviceIdentifier;
     req.body.vitalType = vitalType;
     req.body.value = value;
+    req.body.measuredAt = measuredAt;
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+function validateCreateMeasurementBatch(req, res, next) {
+  try {
+    const measurements = Array.isArray(req.body.measurements)
+      ? req.body.measurements
+      : null;
+
+    if (!measurements || measurements.length === 0) {
+      throw createError("measurements array is required.", 400, {
+        code: "INVALID_MEASUREMENT_BATCH",
+      });
+    }
+
+    if (measurements.length > 500) {
+      throw createError("Batch size must be 500 or less.", 400, {
+        code: "MEASUREMENT_BATCH_TOO_LARGE",
+      });
+    }
+
+    req.body.measurements = measurements.map((measurement) => {
+      let { vitalType, value, measuredAt } = measurement;
+
+      vitalType = String(vitalType || "").trim().toUpperCase();
+      value = Number(value);
+
+      if (!vitalType || Number.isNaN(value)) {
+        throw createError("Each measurement requires vitalType and value.", 400, {
+          code: "INVALID_MEASUREMENT_BATCH_ITEM",
+        });
+      }
+
+      const parsedMeasuredAt = new Date(measuredAt);
+      if (!measuredAt || Number.isNaN(parsedMeasuredAt.getTime())) {
+        throw createError("Each measurement requires a valid measuredAt.", 400, {
+          code: "INVALID_MEASURED_AT",
+        });
+      }
+
+      return {
+        vitalType,
+        value,
+        measuredAt: parsedMeasuredAt,
+      };
+    });
 
     next();
   } catch (err) {
@@ -31,7 +97,7 @@ function validateCharacterId(req, res, next) {
     const id = Number(req.params.characterId ?? req.params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-      throw createError("유효하지 않은 캐릭터 ID입니다.", 400);
+      throw createError("Invalid character id.", 400);
     }
 
     req.params.characterId = id;
@@ -95,6 +161,7 @@ function validateManualCorrection(req, res, next) {
 
 module.exports = {
   validateCreateMeasurement,
+  validateCreateMeasurementBatch,
   validateCharacterId,
   validateManualCorrection,
 };

@@ -10,12 +10,23 @@ import Foundation
 struct VitalMeasurement {
     let vitalType: String
     let value: Int
+    let measuredAt: Date
 }
 
 struct MeasurementRequest: Encodable {
-    let deviceIdentifier: String
     let vitalType: String
     let value: Int
+    let measuredAt: String
+}
+
+struct MeasurementBatchItem: Encodable {
+    let vitalType: String
+    let value: Int
+    let measuredAt: String
+}
+
+struct MeasurementBatchRequest: Encodable {
+    let measurements: [MeasurementBatchItem]
 }
 
 struct TransferResult: Decodable {
@@ -27,5 +38,18 @@ struct TransferResult: Decodable {
 
     var isSuccessful: Bool {
         measurementId != nil || ignored == true
+    }
+}
+
+struct BatchTransferResult: Decodable {
+    let message: String?
+    let acceptedCount: Int?
+    let ignoredCount: Int?
+    let duplicateCount: Int?
+    let failedCount: Int?
+    let syncedThrough: String?
+
+    var isSuccessful: Bool {
+        failedCount == nil || failedCount == 0
     }
 }

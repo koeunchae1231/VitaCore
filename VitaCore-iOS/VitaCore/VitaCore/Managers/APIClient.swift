@@ -49,13 +49,17 @@ final class APIClient {
 
     func post<Request: Encodable, Response: Decodable>(
         path: String,
-        body: Request
+        body: Request,
+        bearerToken: String? = nil
     ) async throws -> Response {
         let cleanPath = path.hasPrefix("/") ? String(path.dropFirst()) : path
         let url = baseURL.appendingPathComponent(cleanPath)
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let bearerToken {
+            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        }
         request.httpBody = try encoder.encode(body)
 
         print("[API] POST \(url.absoluteString)")

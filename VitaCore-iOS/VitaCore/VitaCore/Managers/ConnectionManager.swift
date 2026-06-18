@@ -13,9 +13,14 @@ final class ConnectionManager {
 
     private let deviceIdentifierKey = "vitacore.deviceIdentifier"
     private let apiClient: APIClient
+    private let tokenStore: DeviceTokenStore
 
-    private init(apiClient: APIClient = .shared) {
+    private init(
+        apiClient: APIClient = .shared,
+        tokenStore: DeviceTokenStore = .shared
+    ) {
         self.apiClient = apiClient
+        self.tokenStore = tokenStore
     }
 
     var deviceIdentifier: String {
@@ -35,9 +40,15 @@ final class ConnectionManager {
             deviceName: UIDevice.current.name
         )
 
-        return try await apiClient.post(
+        let result: ConnectionResult = try await apiClient.post(
             path: "/api/connection-codes/verify",
             body: request
         )
+
+        if let deviceToken = result.deviceToken {
+            tokenStore.save(deviceToken)
+        }
+
+        return result
     }
 }

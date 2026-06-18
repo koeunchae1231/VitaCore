@@ -169,11 +169,7 @@ async function findVitalType(vitalType) {
   return results[0];
 }
 
-async function createMeasurement({ deviceIdentifier, vitalType, value, ipAddress }) {
-  const vitalCode = vitalType;
-
-  await markInactiveDevices({ ipAddress });
-
+async function findActiveDeviceById({ deviceId, ipAddress }) {
   const findDeviceSql = `
     SELECT
       d.id,
@@ -185,10 +181,11 @@ async function createMeasurement({ deviceIdentifier, vitalType, value, ipAddress
       c.user_id
     FROM app_devices d
     INNER JOIN characters c ON d.character_id = c.id
-    WHERE d.device_identifier = ?
+    WHERE d.id = ?
+    LIMIT 1
   `;
 
-  const deviceResults = await dbQuery(findDeviceSql, [deviceIdentifier]);
+  const deviceResults = await dbQuery(findDeviceSql, [deviceId]);
 
   if (deviceResults.length === 0) {
     await logSecurityEvent({
@@ -217,20 +214,33 @@ async function createMeasurement({ deviceIdentifier, vitalType, value, ipAddress
     throw createError("비활성화된 기기입니다.", 403, { code: "DEVICE_INACTIVE" });
   }
 
-  const findVitalTypeSql = `
-    SELECT id, code
-    FROM vital_types
-    WHERE code = ?
+  return device;
+}
+
+async function findDuplicateDeviceMeasurement({ appDeviceId, vitalTypeId, measuredAt }) {
+  const sql = `
+    SELECT id
+    FROM measurements
+    WHERE app_device_id = ?
+      AND vital_type_id = ?
+      AND measured_at = ?
+      AND source_type = 'device'
+    LIMIT 1
   `;
 
-  const vitalResults = await dbQuery(findVitalTypeSql, [vitalCode]);
+  const results = await dbQuery(sql, [appDeviceId, vitalTypeId, measuredAt]);
+  return results[0] || null;
+}
 
-  if (vitalResults.length === 0) {
-    throw createError("유효하지 않은 vitalType입니다.", 400, { code: "INVALID_VITAL_TYPE" });
-  }
-
-  const vitalTypeRow = vitalResults[0];
-  const measuredAt = new Date();
+async function processDeviceMeasurement({
+  device,
+  vitalType,
+  value,
+  measuredAt,
+  ipAddress,
+  skipDuplicates = false,
+}) {
+  const vitalTypeRow = await findVitalType(vitalType);
 
   if (vitalTypeRow.code === "TEMP" || vitalTypeRow.code === "RR") {
     const ignoredDescription =
@@ -258,8 +268,29 @@ async function createMeasurement({ deviceIdentifier, vitalType, value, ipAddress
       message: "측정값이 정책에 따라 무시되었습니다.",
       measurementId: null,
       ignored: true,
+      duplicated: false,
       anomalyDetected: false,
+      measuredAt: toIso(measuredAt),
     };
+  }
+
+  if (skipDuplicates) {
+    const duplicate = await findDuplicateDeviceMeasurement({
+      appDeviceId: device.id,
+      vitalTypeId: vitalTypeRow.id,
+      measuredAt,
+    });
+
+    if (duplicate) {
+      return {
+        message: "Duplicate measurement skipped.",
+        measurementId: duplicate.id,
+        ignored: false,
+        duplicated: true,
+        anomalyDetected: false,
+        measuredAt: toIso(measuredAt),
+      };
+    }
   }
 
   const insertResult = await insertMeasurementRecord({
@@ -332,7 +363,66 @@ async function createMeasurement({ deviceIdentifier, vitalType, value, ipAddress
     message: "측정값 저장에 성공했습니다.",
     measurementId: insertResult.insertId,
     derivedRrMeasurementId,
+    ignored: false,
+    duplicated: false,
     anomalyDetected: Boolean(anomaly),
+    measuredAt: toIso(measuredAt),
+  };
+}
+
+async function createMeasurement({ deviceId, vitalType, value, measuredAt, ipAddress }) {
+  await markInactiveDevices({ ipAddress });
+  const device = await findActiveDeviceById({ deviceId, ipAddress });
+
+  return processDeviceMeasurement({
+    device,
+    vitalType,
+    value,
+    measuredAt: measuredAt || new Date(),
+    ipAddress,
+  });
+}
+
+async function createMeasurementBatch({ deviceId, measurements, ipAddress }) {
+  await markInactiveDevices({ ipAddress });
+  const device = await findActiveDeviceById({ deviceId, ipAddress });
+  const results = [];
+
+  for (const measurement of measurements) {
+    const result = await processDeviceMeasurement({
+      device,
+      vitalType: measurement.vitalType,
+      value: measurement.value,
+      measuredAt: measurement.measuredAt,
+      ipAddress,
+      skipDuplicates: true,
+    });
+
+    results.push({
+      vitalType: measurement.vitalType,
+      value: measurement.value,
+      ...result,
+    });
+  }
+
+  const syncedTimes = results
+    .filter((result) => result.ignored || result.duplicated || result.measurementId)
+    .map((result) => new Date(result.measuredAt).getTime())
+    .filter((time) => !Number.isNaN(time));
+
+  return {
+    message: "Batch measurements processed.",
+    acceptedCount: results.filter(
+      (result) => result.measurementId && !result.duplicated
+    ).length,
+    ignoredCount: results.filter((result) => result.ignored).length,
+    duplicateCount: results.filter((result) => result.duplicated).length,
+    failedCount: 0,
+    syncedThrough:
+      syncedTimes.length > 0
+        ? new Date(Math.max(...syncedTimes)).toISOString()
+        : null,
+    results,
   };
 }
 
@@ -664,6 +754,7 @@ async function createManualCorrection({
 
 module.exports = {
   createMeasurement,
+  createMeasurementBatch,
   getLatestMeasurement,
   getMeasurementHistory,
   getLatestVitals,
