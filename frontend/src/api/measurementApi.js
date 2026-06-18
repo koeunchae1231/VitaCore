@@ -1,10 +1,12 @@
 import { apiRequest } from "./client";
 
-export async function fetchLatestVitals(characterId) {
-  return apiRequest(`/characters/${characterId}/vitals/latest`);
+export async function fetchLatestVitals(characterId, options = {}) {
+  return apiRequest(`/characters/${characterId}/vitals/latest`, {
+    signal: options.signal,
+  });
 }
 
-export async function fetchVitalHistory(characterId, params = {}) {
+export async function fetchVitalHistory(characterId, params = {}, options = {}) {
   const query = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
@@ -14,7 +16,9 @@ export async function fetchVitalHistory(characterId, params = {}) {
   });
 
   const suffix = query.toString() ? `?${query.toString()}` : "";
-  return apiRequest(`/characters/${characterId}/vitals/history${suffix}`);
+  return apiRequest(`/characters/${characterId}/vitals/history${suffix}`, {
+    signal: options.signal,
+  });
 }
 
 export async function createManualCorrection(correction) {

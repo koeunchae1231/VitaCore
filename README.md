@@ -318,6 +318,66 @@ npm test
 5. `/api/measurements` and `/api/measurements/batch` require `Authorization: Bearer <deviceToken>`.
 6. Manual correction keeps the existing user JWT flow.
 
+### 4. Device Token Revocation
+
+#### Problem
+
+* Device JWTs were valid until expiration and could not be invalidated immediately on the server.
+
+#### Cause
+
+* The middleware only verified JWT signature and claims, without checking the current device state in the database.
+
+#### Solution
+
+* Added `is_revoked`, `revoked_at`, `last_seen_at`, and `current_token_jti` fields to `app_devices`.
+* Added `jti` to Device JWTs.
+* Device auth now verifies the JWT, loads the device from the database, checks revocation state, and compares the token `jti` with the current device token id.
+* Re-registration rotates `current_token_jti`, so older Device JWTs no longer pass middleware checks.
+* Added a user-authenticated device revoke endpoint that marks the device inactive and revoked.
+
+#### Result
+
+* Server-side token invalidation is possible before JWT expiration.
+* Re-registered devices receive a fresh token while older tokens are rejected.
+* Measurement writes are blocked for revoked or unregistered devices.
+
+---
+
+### 5. Polling Race Condition
+
+#### Problem
+
+* Vital polling could start a new request before a previous polling request finished.
+
+#### Cause
+
+* The polling interval did not track in-flight requests or cancel work during component cleanup.
+
+#### Solution
+
+* Added a polling request gate that uses `AbortController`.
+* Polling skips new requests while a previous request is still running.
+* Component cleanup clears the polling interval and aborts the active request.
+* Aborted or stale responses are ignored before updating UI state.
+
+#### Result
+
+* Duplicate polling requests are prevented.
+* Unmount cleanup is safer.
+* Slow polling responses are less likely to overwrite newer UI state.
+
+---
+
+### Device Token Revocation Flow
+
+1. Connection code verification creates a Device JWT with a `jti`.
+2. The backend stores the current token id in `app_devices.current_token_jti`.
+3. Device measurement middleware verifies the JWT signature and then loads the device row.
+4. The request is rejected if the device is missing, inactive, revoked, or if the JWT `jti` does not match `current_token_jti`.
+5. Re-registration rotates `current_token_jti`, invalidating older tokens for that device.
+6. Device revocation marks `is_revoked = TRUE`, sets `revoked_at`, clears `current_token_jti`, and blocks future measurement writes.
+
 ### Offline Sync / Batch Measurement Flow
 
 1. The iOS app stores `lastSyncedAt` in `UserDefaults`.
@@ -351,7 +411,14 @@ cd backend
 npm test
 ```
 
-The backend test suite checks missing device token rejection, valid device token acceptance, batch endpoint authentication, and config-based anomaly detection.
+```bash
+cd frontend
+npm test
+```
+
+The backend test suite checks missing device token rejection, valid device token acceptance, revoked device token rejection, batch endpoint authentication, and config-based anomaly detection.
+
+The frontend test suite checks polling duplicate prevention and AbortController cleanup behavior.
 
 > This repository has been continuously improved based on code reviews, architecture reviews, and GitHub portfolio feedback. Each improvement focuses on strengthening security, reliability, and maintainability while keeping the original architecture intact.
 

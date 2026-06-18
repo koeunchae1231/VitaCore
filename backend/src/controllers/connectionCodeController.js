@@ -55,9 +55,24 @@ async function getConnectionStatus(req, res, next) {
   }
 }
 
+async function revokeDevice(req, res, next) {
+  try {
+    const result = await connectionCodeService.revokeDevice({
+      userId: req.user.userId,
+      deviceId: req.params.deviceId,
+      ipAddress: req.ip,
+    });
+
+    return res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createConnectionCode,
   getConnectionCode,
   verifyConnectionCode,
   getConnectionStatus,
+  revokeDevice,
 };

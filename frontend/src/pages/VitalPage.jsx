@@ -29,6 +29,7 @@ import {
   setStoredVitals,
   toDisplayVitals,
 } from "../utils/vitals";
+import { createPollingRequestGate } from "../utils/pollingRequestGate";
 
 function formatGender(gender) {
   if (!gender) return "MF";
@@ -102,10 +103,10 @@ async function saveVitalSnapshot({
   );
 }
 
-function fetchVitalDashboardData(characterId) {
+function fetchVitalDashboardData(characterId, options = {}) {
   return [
-    fetchLatestVitals(characterId),
-    fetchVitalHistory(characterId, { limit: HISTORY_LIMIT }),
+    fetchLatestVitals(characterId, { signal: options.signal }),
+    fetchVitalHistory(characterId, { limit: HISTORY_LIMIT }, { signal: options.signal }),
   ];
 }
 
@@ -120,6 +121,7 @@ export default function VitalPage() {
   const [isLoading, setIsLoading] = useState(false);
   const homeostasisActiveRef = useRef(false);
   const latestMeasurementAtRef = useRef(null);
+  const pollingGateRef = useRef(createPollingRequestGate());
 
   const bmi = useMemo(
     () => calculateBmi(character?.height, character?.weight) || 22,
@@ -363,26 +365,38 @@ export default function VitalPage() {
   useEffect(() => {
     if (!selectedCharacterId || !character) return undefined;
 
-    const timer = window.setInterval(async () => {
-      try {
-        const [latestData, historyData] = await Promise.all(
-          fetchVitalDashboardData(selectedCharacterId)
-        );
-        const measuredAt = latestData?.snapshot?.measuredAt || null;
-        const sourceType =
-          latestData?.snapshot?.sourceSummary?.latestSourceType || null;
+    const timer = window.setInterval(() => {
+      pollingGateRef.current.run(
+        async (signal) => {
+          const [latestData, historyData] = await Promise.all(
+            fetchVitalDashboardData(selectedCharacterId, { signal })
+          );
 
-        if (sourceType && measuredAt !== latestMeasurementAtRef.current) {
-          applyMeasuredVitals(latestData, bmi);
+          return { latestData, historyData };
+        },
+        {
+          onResult: ({ latestData, historyData }) => {
+            const measuredAt = latestData?.snapshot?.measuredAt || null;
+            const sourceType =
+              latestData?.snapshot?.sourceSummary?.latestSourceType || null;
+
+            if (sourceType && measuredAt !== latestMeasurementAtRef.current) {
+              applyMeasuredVitals(latestData, bmi);
+            }
+
+            setHistory(historyData.measurements || []);
+          },
+          onError: (err) => {
+            if (err.status === 401) logout();
+          },
         }
-
-        setHistory(historyData.measurements || []);
-      } catch (err) {
-        if (err.status === 401) logout();
-      }
+      );
     }, 5000);
 
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearInterval(timer);
+      pollingGateRef.current.abort();
+    };
   }, [bmi, character, logout, selectedCharacterId]);
 
   useEffect(() => {

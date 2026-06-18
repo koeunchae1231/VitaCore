@@ -24,5 +24,10 @@ router.post(
   validateVerifyConnectionCode,
   connectionCodeController.verifyConnectionCode
 );
+router.delete(
+  "/devices/:deviceId",
+  authenticateToken,
+  connectionCodeController.revokeDevice
+);
 
 module.exports = router;

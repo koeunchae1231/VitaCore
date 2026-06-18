@@ -268,6 +268,8 @@ async function verifyConnectionCode({
     });
   }
 
+  const deviceTokenJti = crypto.randomUUID();
+
   const updateCodeSql = `
     UPDATE connection_codes
     SET is_used = TRUE, used_at = NOW()
@@ -290,21 +292,30 @@ async function verifyConnectionCode({
       created_at,
       updated_at,
       last_active_at,
-      is_active
+      last_seen_at,
+      is_active,
+      is_revoked,
+      revoked_at,
+      current_token_jti
     )
-    VALUES (?, ?, ?, NOW(), NOW(), NOW(), TRUE)
+    VALUES (?, ?, ?, NOW(), NOW(), NOW(), NOW(), TRUE, FALSE, NULL, ?)
     ON DUPLICATE KEY UPDATE
       character_id = VALUES(character_id),
       device_name = VALUES(device_name),
       updated_at = NOW(),
       last_active_at = NOW(),
-      is_active = TRUE
+      last_seen_at = NOW(),
+      is_active = TRUE,
+      is_revoked = FALSE,
+      revoked_at = NULL,
+      current_token_jti = VALUES(current_token_jti)
   `;
 
   await dbQuery(upsertDeviceSql, [
     connectionCode.character_id,
     deviceName,
     deviceIdentifier,
+    deviceTokenJti,
   ]);
 
   const deviceRows = await dbQuery(
@@ -324,10 +335,11 @@ async function verifyConnectionCode({
     });
   }
 
-  const deviceToken = issueDeviceToken({
+  const { deviceToken } = issueDeviceToken({
     deviceId,
     characterId: connectionCode.character_id,
     userId: connectionCode.user_id,
+    jti: deviceTokenJti,
   });
 
   await logSecurityEvent({
@@ -424,9 +436,63 @@ async function getConnectionStatus({ userId, characterId }) {
   };
 }
 
+async function revokeDevice({ userId, deviceId, ipAddress }) {
+  const parsedDeviceId = Number(deviceId);
+
+  if (!Number.isInteger(parsedDeviceId) || parsedDeviceId <= 0) {
+    throw createError("Invalid deviceId.", 400, {
+      code: "INVALID_DEVICE_ID",
+    });
+  }
+
+  const sql = `
+    SELECT d.id, d.character_id
+    FROM app_devices d
+    INNER JOIN characters c ON d.character_id = c.id
+    WHERE d.id = ? AND c.user_id = ?
+    LIMIT 1
+  `;
+  const devices = await dbQuery(sql, [parsedDeviceId, userId]);
+
+  if (devices.length === 0) {
+    throw createError("Device not found.", 404, {
+      code: "DEVICE_NOT_FOUND",
+    });
+  }
+
+  await dbQuery(
+    `
+      UPDATE app_devices
+      SET
+        is_active = FALSE,
+        is_revoked = TRUE,
+        revoked_at = NOW(),
+        current_token_jti = NULL,
+        updated_at = NOW()
+      WHERE id = ?
+    `,
+    [parsedDeviceId]
+  );
+
+  await logSecurityEvent({
+    userId,
+    eventType: "DEVICE_REVOKED",
+    targetType: "device",
+    targetId: parsedDeviceId,
+    description: "Device token was revoked by user action.",
+    ipAddress,
+  });
+
+  return {
+    message: "Device revoked.",
+    deviceId: parsedDeviceId,
+  };
+}
+
 module.exports = {
   createConnectionCode,
   getConnectionCode,
   verifyConnectionCode,
   getConnectionStatus,
+  revokeDevice,
 };

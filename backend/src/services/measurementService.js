@@ -303,7 +303,7 @@ async function processDeviceMeasurement({
   });
 
   await dbQuery(
-    `UPDATE app_devices SET last_active_at = NOW(), updated_at = NOW() WHERE id = ?`,
+    `UPDATE app_devices SET last_active_at = NOW(), last_seen_at = NOW(), updated_at = NOW() WHERE id = ?`,
     [device.id]
   );
 

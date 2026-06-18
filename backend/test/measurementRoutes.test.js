@@ -7,7 +7,15 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 
 const measurementServicePath = require.resolve("../src/services/measurementService");
+const dbQueryPath = require.resolve("../src/utils/dbQuery");
 const calls = [];
+let deviceRecord = {
+  id: 77,
+  character_id: 12,
+  is_active: 1,
+  is_revoked: 0,
+  current_token_jti: "valid-jti",
+};
 
 require.cache[measurementServicePath] = {
   id: measurementServicePath,
@@ -34,6 +42,23 @@ require.cache[measurementServicePath] = {
         results: [],
       };
     },
+  },
+};
+
+require.cache[dbQueryPath] = {
+  id: dbQueryPath,
+  filename: dbQueryPath,
+  loaded: true,
+  exports: async (sql, params = []) => {
+    if (sql.includes("FROM app_devices")) {
+      return deviceRecord && params[0] === deviceRecord.id ? [deviceRecord] : [];
+    }
+
+    if (sql.includes("UPDATE app_devices")) {
+      return { affectedRows: 1 };
+    }
+
+    return [];
   },
 };
 
@@ -102,6 +127,7 @@ function issueDeviceToken(overrides = {}) {
       deviceId: 77,
       characterId: 12,
       userId: 3,
+      jti: "valid-jti",
       ...overrides,
     },
     process.env.JWT_SECRET
@@ -124,6 +150,13 @@ test("POST /api/measurements rejects requests without a device token", async () 
 test("POST /api/measurements saves when a valid device token is provided", async () => {
   const app = createApp();
   calls.length = 0;
+  deviceRecord = {
+    id: 77,
+    character_id: 12,
+    is_active: 1,
+    is_revoked: 0,
+    current_token_jti: "valid-jti",
+  };
 
   const response = await request(app, {
     method: "POST",
@@ -140,6 +173,31 @@ test("POST /api/measurements saves when a valid device token is provided", async
   assert.equal(response.body.measurementId, 123);
   assert.equal(calls[0].method, "createMeasurement");
   assert.equal(calls[0].payload.deviceId, 77);
+});
+
+test("POST /api/measurements rejects a revoked device token", async () => {
+  const app = createApp();
+  deviceRecord = {
+    id: 77,
+    character_id: 12,
+    is_active: 1,
+    is_revoked: 1,
+    current_token_jti: "valid-jti",
+  };
+
+  const response = await request(app, {
+    method: "POST",
+    path: "/api/measurements",
+    token: issueDeviceToken(),
+    body: {
+      vitalType: "HR",
+      value: 80,
+      measuredAt: "2026-06-18T00:00:00.000Z",
+    },
+  });
+
+  assert.equal(response.statusCode, 403);
+  assert.equal(response.body.code, "DEVICE_TOKEN_REVOKED");
 });
 
 test("POST /api/measurements/batch requires device token authentication", async () => {
