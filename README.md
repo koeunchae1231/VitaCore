@@ -371,14 +371,6 @@ npm test
 
 ---
 
-### Device Token Revocation Flow
-
-1. Connection Code 검증 후 jti가 포함된 Device JWT를 발급
-2. 현재 토큰의 jti를 app_devices.current_token_jti에 저장
-3. 측정 데이터 요청 시 Device JWT와 디바이스 상태를 함께 검증
-4. 디바이스가 폐기되었거나 현재 토큰 정보와 일치하지 않으면 요청을 차단
-5. 디바이스를 재등록하면 새로운 Device JWT를 발급하여 기존 토큰을 자동으로 무효화
-
 ### Offline Sync / Batch Measurement Flow
 
 1. iOS 애플리케이션은 lastSyncedAt 값을 UserDefaults에 저장
