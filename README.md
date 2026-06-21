@@ -6,6 +6,8 @@ VitaCore is a vital monitoring project using wearable data.
 사용자 인증, 바이탈 데이터 관리, 디바이스 연동, 보안 기능을 직접 구현한    
 교육 및 포트폴리오 프로젝트     
 
+---
+
 ## About
 
 VitaCore is a web app for checking and simulating vital signs.
@@ -22,6 +24,8 @@ It uses:
 
 This is not a medical app. It is for learning and portfolio work.
 
+---
+
 ## Features
 
 * React, Express, MariaDB 기반 바이탈 모니터링 풀스택 웹 애플리케이션 개발
@@ -34,6 +38,8 @@ This is not a medical app. It is for learning and portfolio work.
 * 유효 범위를 벗어난 바이탈 데이터를 탐지하여 `security_events` 테이블에 기록하는 이상치 탐지 구조 설계
 * `security_events` 및 `security_event_archives` 테이블을 활용한 감사 로그 기록 및 아카이빙 구조 설계
 * HealthKit HR·SpO₂ 데이터를 기반으로 RR을 계산하고 바이탈 데이터 처리 과정 자동화
+
+---
 
 ## Architecture
 
@@ -65,6 +71,8 @@ Main frontend helper files:
 - `frontend/src/utils/securityEventDisplay.js`
 - `frontend/src/utils/characterCommands.js`
 
+---
+
 ## Tech Stack
 
 Frontend:
@@ -90,6 +98,8 @@ iOS:
 - SwiftUI
 - HealthKit
 
+---
+
 ## Security
 
 * 사용자 비밀번호는 bcrypt 해시 방식으로 저장
@@ -100,6 +110,8 @@ iOS:
 * 로그인, 디바이스 연결, 명령 실행, 이상치 탐지 등의 보안 이벤트를 `security_events` 테이블에 기록
 * 오래된 보안 이벤트는 `security_event_archives` 테이블로 아카이빙 가능
 * 개발 환경에서는 CORS를 허용하며, 운영 환경에서는 허용 Origin을 제한하도록 설계
+
+---
 
 ## Project Structure
 
@@ -131,6 +143,8 @@ iOS:
 `-- package.json
 ```
 
+---
+
 ## Environment Variables
 
 Backend variables are in `backend/.env`.
@@ -160,6 +174,9 @@ VITE_API_BASE_URL=http://localhost:3000/api
 
 Do not commit local `.env` files.
 
+---
+
+
 ## Database Setup
 
 1. Create a MariaDB database.
@@ -171,6 +188,9 @@ Do not commit local `.env` files.
 백엔드 서버는 시작 시 security_event_archives 테이블의 존재 여부를 확인    
 일부 초기화 오류는 로그로만 기록되며, 오류 종류에 따라 서버는 계속 실행될 수 있음     
 운영 환경에서는 필수 환경 변수와 데이터베이스 설정을 검증한 후 서비스를 실행하는 것을 권장     
+
+---
+
 
 ## Run Locally
 
@@ -202,6 +222,9 @@ cd frontend
 npm run dev
 ```
 
+---
+
+
 ## Build / Verify
 
 Build the frontend:
@@ -230,12 +253,18 @@ cd backend
 npm test
 ```
 
+---
+
+
 ## Documentation
 
 - [Architecture Design](./docs/architecture_design.md)
 - [Modeling Design](./docs/modeling_design.md)
 - [Security Notes](./docs/security.md)
 - [iOS README](./VitaCore-iOS/README.md)
+
+---
+
 
 ## Troubleshooting & Improvements
 
@@ -320,6 +349,9 @@ npm test
 5. /api/measurements와 /api/measurements/batch API는 Authorization: Bearer <deviceToken>을 통해 Device JWT를 검증한 후 측정 데이터를 저장
 6. 사용자의 수동 수정 기능은 기존 User JWT 인증 체계를 사용하여 처리
 
+---
+
+
 ### 4. Device Token Revocation
 
 #### Problem
@@ -380,6 +412,9 @@ npm test
 5. 디바이스, 바이탈 종류, 측정 시각을 기준으로 중복 데이터를 확인
 6. Batch 전송이 성공한 경우에만 lastSyncedAt을 갱신하여 실패한 데이터는 재전송 가능
 
+---
+
+
 ### Measurement Rule Configuration
 
 Measurement anomaly thresholds are defined in:
@@ -390,6 +425,9 @@ backend/src/services/measurement/measurementRuleConfig.js
 
 detectMeasurementAnomaly(vitalCode, value, profile) 함수는 Rule Config를 기반으로 이상치를 탐지하며,     
 profile 인자를 통해 향후 연령, 성별, 캐릭터별 규칙을 적용할 수 있도록 확장성을 고려하여 설계함    
+
+---
+
 
 ### Security Improvements
 
@@ -426,6 +464,9 @@ Verified by **WebSecScope**
 
 - [Security-Improvements](./docs/security/security-Improvements.md)
 
+---
+
+
 ### Test 실행 방법
 
 ```bash
@@ -444,6 +485,9 @@ npm test
 
 > VitaCore 프로젝트는 코드 리뷰, 아키텍처 리뷰, GitHub 포트폴리오 피드백을 반영하여 지속적으로 개선       
 > 기능 구현에 그치지 않고 보안성, 안정성, 유지보수성을 향상시키는 방향으로 구조를 지속적으로 개선
+
+---
+
 
 ## Disclaimer
 
