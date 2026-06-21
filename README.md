@@ -393,10 +393,38 @@ profile 인자를 통해 향후 연령, 성별, 캐릭터별 규칙을 적용할
 
 ### Security Improvements
 
-* 디바이스에서 전송되는 측정 데이터는 Device JWT 기반으로 인증하도록 구현
-* 사용자의 수동 수정 기능은 기존 User JWT 인증 체계를 유지하여 인증 경계를 분리
-* Device Identifier와 Connection Code를 측정 데이터 인증 수단으로 사용하지 않도록 개선
-* Batch Measurement API 역시 단건 측정 API와 동일한 Device JWT 인증 체계를 적용
+#### Authentication & Authorization
+
+- Device에서 전송되는 측정 데이터는 Device JWT 기반으로 인증하도록 구현
+- 사용자의 수동 수정 기능은 기존 User JWT 인증 체계를 유지하여 인증 경계를 분리
+- Device Identifier와 Connection Code를 측정 데이터 인증 수단으로 사용하지 않도록 개선
+- Batch Measurement API에도 동일한 Device JWT 인증 체계를 적용
+
+#### Security Hardening
+
+- WebSecScope를 활용하여 서비스 보안 진단 수행
+- HTTP Security Headers(Content-Security-Policy, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy) 적용
+- Backend(Express)와 Frontend(Vercel) 모두 동일한 보안 정책 적용
+- 진단 결과를 기반으로 보안 설정을 개선하고 재검증 수행
+
+#### Security Audit
+
+**Before**
+
+- Security Score: **60 (Grade D)**
+
+↓
+
+**After**
+
+- Security Score: **97 (Grade A)**
+- Score Delta: **+37**
+
+Verified by **WebSecScope**
+
+자세한 보안 개선 과정은 아래 문서를 참고
+
+- [Security-Improvements](./docs/security/security-Improvements.md)
 
 ### Test 실행 방법
 
