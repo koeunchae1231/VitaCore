@@ -9,12 +9,14 @@ const measurementRoutes = require("./routes/measurementRoutes");
 const securityEventRoutes = require("./routes/securityEventRoutes");
 const waveMeasurementRoutes = require("./routes/waveMeasurementRoutes");
 const errorMiddleware = require("./middlewares/errorMiddleware");
+const securityHeadersMiddleware = require("./middlewares/securityHeadersMiddleware");
 const authController = require("./controllers/authController");
 const authenticateToken = require("./middlewares/authMiddleware");
 
 const app = express();
 
 app.set("trust proxy", 1);
+app.use(securityHeadersMiddleware);
 app.use(cors());
 app.use(express.json());
 
